@@ -216,6 +216,11 @@ class UDPServer:
         result["c_act_power"] = self._format_power(data.phase_c.active_power)
         result["total_act_power"] = self._format_power(data.total_power)
 
+        # Marstek uses errors to detect meter failure and may enter "diagnosing"
+        # mode if it sees power_meter_failure during startup. The old UDP protocol
+        # never included this field, so clear it to preserve that behaviour.
+        result["errors"] = []
+
         return {
             "id": request_id,
             "src": self._device.device_id,

@@ -111,40 +111,40 @@ def build_em_status(meter_data: MeterData, em_id: int = 0) -> dict:
     no_data = not meter_data or not meter_data.is_valid or meter_data.is_stale
     errors = ["power_meter_failure"] if no_data else []
 
-    pa = meter_data.phase_a if not no_data else None
-    pb = meter_data.phase_b if not no_data else None
-    pc = meter_data.phase_c if not no_data else None
+    # Always use actual phase data so defaults (230 V, 50 Hz, PF=1.0) are
+    # preserved even before the first successful fetch.
+    pa = meter_data.phase_a
+    pb = meter_data.phase_b
+    pc = meter_data.phase_c
 
     return {
         "id": em_id,
-        "a_current": round(pa.current, 3) if pa else 0.0,
-        "a_voltage": round(pa.voltage, 1) if pa else 0.0,
-        "a_act_power": round(pa.active_power, 1) if pa else 0.0,
-        "a_aprt_power": round(pa.apparent_power, 1) if pa else 0.0,
-        "a_pf": round(pa.power_factor, 2) if pa else 0.0,
-        "a_freq": round(pa.frequency, 1) if pa else 0.0,
+        "a_current": round(pa.current, 3),
+        "a_voltage": round(pa.voltage, 1),
+        "a_act_power": round(pa.active_power, 1),
+        "a_aprt_power": round(pa.apparent_power, 1),
+        "a_pf": round(pa.power_factor, 2),
+        "a_freq": round(pa.frequency, 1),
         "a_errors": [],
-        "b_current": round(pb.current, 3) if pb else 0.0,
-        "b_voltage": round(pb.voltage, 1) if pb else 0.0,
-        "b_act_power": round(pb.active_power, 1) if pb else 0.0,
-        "b_aprt_power": round(pb.apparent_power, 1) if pb else 0.0,
-        "b_pf": round(pb.power_factor, 2) if pb else 0.0,
-        "b_freq": round(pb.frequency, 1) if pb else 0.0,
+        "b_current": round(pb.current, 3),
+        "b_voltage": round(pb.voltage, 1),
+        "b_act_power": round(pb.active_power, 1),
+        "b_aprt_power": round(pb.apparent_power, 1),
+        "b_pf": round(pb.power_factor, 2),
+        "b_freq": round(pb.frequency, 1),
         "b_errors": [],
-        "c_current": round(pc.current, 3) if pc else 0.0,
-        "c_voltage": round(pc.voltage, 1) if pc else 0.0,
-        "c_act_power": round(pc.active_power, 1) if pc else 0.0,
-        "c_aprt_power": round(pc.apparent_power, 1) if pc else 0.0,
-        "c_pf": round(pc.power_factor, 2) if pc else 0.0,
-        "c_freq": round(pc.frequency, 1) if pc else 0.0,
+        "c_current": round(pc.current, 3),
+        "c_voltage": round(pc.voltage, 1),
+        "c_act_power": round(pc.active_power, 1),
+        "c_aprt_power": round(pc.apparent_power, 1),
+        "c_pf": round(pc.power_factor, 2),
+        "c_freq": round(pc.frequency, 1),
         "c_errors": [],
         "n_current": None,
         "n_errors": [],
-        "total_current": round(meter_data.total_current, 3) if not no_data else 0.0,
-        "total_act_power": round(meter_data.total_power, 1) if not no_data else 0.0,
-        "total_aprt_power": (
-            round(meter_data.total_apparent_power, 1) if not no_data else 0.0
-        ),
+        "total_current": round(meter_data.total_current, 3),
+        "total_act_power": round(meter_data.total_power, 1),
+        "total_aprt_power": round(meter_data.total_apparent_power, 1),
         "user_calibrated_phase": [],
         "errors": errors,
     }
