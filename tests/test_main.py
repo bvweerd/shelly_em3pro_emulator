@@ -265,7 +265,9 @@ class TestMain:
 
         result = main()
 
-        mock_emulator_class.assert_called_once_with(config_path="/path/to/config.yaml", verbose=False)
+        mock_emulator_class.assert_called_once_with(
+            config_path="/path/to/config.yaml", verbose=False
+        )
         assert result == 0
 
     @patch("src.main.ShellyEmulator")

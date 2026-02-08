@@ -141,4 +141,3 @@ class MDNSServer(threading.Thread):
                 logger.info("mDNS: Services unregistered and Zeroconf closed.")
             except Exception as e:
                 logger.error(f"mDNS: Error during unregistration/close: {e}")
-

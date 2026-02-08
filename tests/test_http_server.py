@@ -24,9 +24,9 @@ def get_free_port():
     s.close()
     return port
 
+
 class TestJsonRpcModels:
     """Tests for JSON-RPC Pydantic models."""
-
 
     def test_json_rpc_request_defaults(self):
         """Test JsonRpcRequest default values."""
@@ -393,7 +393,7 @@ class TestHTTPServerStartStop:
         """Create an HTTPServer for testing."""
         mock_dm = MagicMock()
         mock_dm.get_data.return_value = sample_meter_data
-        port = get_free_port() # Use a random free port
+        port = get_free_port()  # Use a random free port
         return HTTPServer(shelly_device, mock_dm, "127.0.0.1", port)
 
     def test_start_stop(self, http_server):
@@ -401,30 +401,36 @@ class TestHTTPServerStartStop:
         http_server.start()
         assert http_server.server_thread is not None
         assert http_server.server_thread.is_alive()
-        time.sleep(1) # Give server time to bind and start accepting connections
+        time.sleep(1)  # Give server time to bind and start accepting connections
 
         http_server.stop()
         # Give server time to release port and thread to terminate
         time.sleep(2)
-        assert http_server.server_thread is None or not http_server.server_thread.is_alive()
+        assert (
+            http_server.server_thread is None
+            or not http_server.server_thread.is_alive()
+        )
 
     def test_start_already_running(self, http_server):
         """Test starting when already running."""
         http_server.start()
         first_thread = http_server.server_thread
         assert first_thread is not None and first_thread.is_alive()
-        time.sleep(1) # Give server time to bind and start accepting connections
+        time.sleep(1)  # Give server time to bind and start accepting connections
 
         # Start again should be no-op (and not raise an error)
         http_server.start()
         # Assert that no new thread was created
         assert http_server.server_thread is first_thread
-        assert http_server.server_thread.is_alive() # Still alive
+        assert http_server.server_thread.is_alive()  # Still alive
 
         http_server.stop()
         # Give server time to release port and thread to terminate
         time.sleep(2)
-        assert http_server.server_thread is None or not http_server.server_thread.is_alive()
+        assert (
+            http_server.server_thread is None
+            or not http_server.server_thread.is_alive()
+        )
 
     def test_stop_not_running(self, http_server):
         """Test stopping when not running."""

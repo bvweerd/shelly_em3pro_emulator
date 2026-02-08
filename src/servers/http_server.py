@@ -88,14 +88,34 @@ class HTTPServer:
 
         return {
             "id": em_id,
-            "a_total_act_energy": round(meter_data.phase_a.energy_total, 2) if not no_data else 0.0,
-            "a_total_act_ret_energy": round(meter_data.phase_a.energy_returned_total, 2) if not no_data else 0.0,
-            "b_total_act_energy": round(meter_data.phase_b.energy_total, 2) if not no_data else 0.0,
-            "b_total_act_ret_energy": round(meter_data.phase_b.energy_returned_total, 2) if not no_data else 0.0,
-            "c_total_act_energy": round(meter_data.phase_c.energy_total, 2) if not no_data else 0.0,
-            "c_total_act_ret_energy": round(meter_data.phase_c.energy_returned_total, 2) if not no_data else 0.0,
+            "a_total_act_energy": (
+                round(meter_data.phase_a.energy_total, 2) if not no_data else 0.0
+            ),
+            "a_total_act_ret_energy": (
+                round(meter_data.phase_a.energy_returned_total, 2)
+                if not no_data
+                else 0.0
+            ),
+            "b_total_act_energy": (
+                round(meter_data.phase_b.energy_total, 2) if not no_data else 0.0
+            ),
+            "b_total_act_ret_energy": (
+                round(meter_data.phase_b.energy_returned_total, 2)
+                if not no_data
+                else 0.0
+            ),
+            "c_total_act_energy": (
+                round(meter_data.phase_c.energy_total, 2) if not no_data else 0.0
+            ),
+            "c_total_act_ret_energy": (
+                round(meter_data.phase_c.energy_returned_total, 2)
+                if not no_data
+                else 0.0
+            ),
             "total_act": round(meter_data.total_energy, 2) if not no_data else 0.0,
-            "total_act_ret": round(meter_data.total_energy_returned, 2) if not no_data else 0.0,
+            "total_act_ret": (
+                round(meter_data.total_energy_returned, 2) if not no_data else 0.0
+            ),
         }
 
     def _get_sys_status(self) -> dict:
@@ -145,9 +165,7 @@ class HTTPServer:
 
     def _get_ct_types(self) -> dict:
         """Get supported current transformer types (Gen2 EM.GetCTTypes)."""
-        return {
-            "types": ["120A", "50A"]
-        }
+        return {"types": ["120A", "50A"]}
 
     def _get_full_config(self) -> dict:
         """Get full device config (Gen2 Shelly.GetConfig)."""
@@ -563,7 +581,7 @@ class HTTPServer:
 
         class ThreadedServer(uvicorn.Server):
             def install_signal_handlers(self):
-                pass # Handled by the main process
+                pass  # Handled by the main process
 
         self.uvicorn_server = ThreadedServer(config=config)
 
@@ -580,10 +598,9 @@ class HTTPServer:
                 loop.run_until_complete(serve_with_shutdown())
             finally:
                 loop.close()
-                self._server_stop_event.clear() # Clear the event for next start
+                self._server_stop_event.clear()  # Clear the event for next start
 
-
-        self._server_stop_event.clear() # Ensure event is clear before starting
+        self._server_stop_event.clear()  # Ensure event is clear before starting
         self.server_thread = threading.Thread(target=run_server_in_thread, daemon=True)
         self.server_thread.start()
         logger.info(f"HTTP server started on http://{self.host}:{self.port}")
@@ -592,8 +609,8 @@ class HTTPServer:
         """Stop the HTTP server."""
         if self.server_thread and self.server_thread.is_alive():
             logger.info("Stopping HTTP server")
-            self._server_stop_event.set() # Signal the server thread to stop
-            self.server_thread.join(timeout=10) # Wait for thread to finish
+            self._server_stop_event.set()  # Signal the server thread to stop
+            self.server_thread.join(timeout=10)  # Wait for thread to finish
             if self.server_thread.is_alive():
                 logger.warning("HTTP server thread did not terminate gracefully.")
             self.server_thread = None

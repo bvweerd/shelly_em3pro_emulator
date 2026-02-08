@@ -209,6 +209,7 @@ DSMR_PATTERNS = {
     ],
 }
 
+
 @dataclass
 class DiscoveredPhase:
     """Discovered entities for a single phase."""

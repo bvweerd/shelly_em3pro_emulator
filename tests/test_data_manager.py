@@ -523,7 +523,9 @@ class TestDataManager:
         manager._fetch_data()
 
         # Verify get_entity_with_unit was called for all 4 power entities
-        entity_calls = [call[0][0] for call in mock_client.get_entity_with_unit.call_args_list]
+        entity_calls = [
+            call[0][0] for call in mock_client.get_entity_with_unit.call_args_list
+        ]
         assert "sensor.power_l1" in entity_calls
         assert "sensor.power_returned_l1" in entity_calls
         assert "sensor.power_l2" in entity_calls
@@ -632,7 +634,7 @@ class TestDataManager:
         mock_client.get_value.side_effect = [231.0, 5.5]  # voltage, current
         mock_client.get_entity_with_unit.side_effect = [
             _ev(1100.0),  # power
-            _ev(50.0),    # power_returned
+            _ev(50.0),  # power_returned
         ]
         mock_ha_client.return_value = mock_client
 

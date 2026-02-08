@@ -43,7 +43,9 @@ class PhaseData:
             self.apparent_power = sign * magnitude
 
         if abs(self.apparent_power) > 0:
-            self.power_factor = min(1.0, abs(self.active_power) / abs(self.apparent_power))
+            self.power_factor = min(
+                1.0, abs(self.active_power) / abs(self.apparent_power)
+            )
 
 
 DATA_STALE_TIMEOUT = 120  # seconds before data is considered stale
@@ -68,7 +70,9 @@ class MeterData:
     @property
     def is_stale(self) -> bool:
         """Check if data is too old to be considered reliable."""
-        return self.timestamp > 0 and (time.time() - self.timestamp) > DATA_STALE_TIMEOUT
+        return (
+            self.timestamp > 0 and (time.time() - self.timestamp) > DATA_STALE_TIMEOUT
+        )
 
     @property
     def total_power(self) -> float:
@@ -138,7 +142,9 @@ def build_em_status(meter_data: MeterData, em_id: int = 0) -> dict:
         "n_errors": [],
         "total_current": round(meter_data.total_current, 3) if not no_data else 0.0,
         "total_act_power": round(meter_data.total_power, 1) if not no_data else 0.0,
-        "total_aprt_power": round(meter_data.total_apparent_power, 1) if not no_data else 0.0,
+        "total_aprt_power": (
+            round(meter_data.total_apparent_power, 1) if not no_data else 0.0
+        ),
         "user_calibrated_phase": [],
         "errors": errors,
     }

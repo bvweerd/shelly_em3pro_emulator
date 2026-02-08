@@ -110,18 +110,19 @@ class UDPServer:
                 # If data is empty during shutdown, exit cleanly
                 if not data and not self._running:
                     break
-                if not self._running:  # Check again in case of race condition before processing
+                if (
+                    not self._running
+                ):  # Check again in case of race condition before processing
                     break
                 self._executor.submit(self._handle_request, sock, data, addr, port)
             except socket.timeout:
                 continue
-            except (OSError, socket.error, ValueError) as e: # Catch ValueError too
-                if not self._running: # If stopping, just break silently
+            except (OSError, socket.error, ValueError) as e:  # Catch ValueError too
+                if not self._running:  # If stopping, just break silently
                     break
                 # Otherwise, it's an unexpected error
                 logger.error("Socket error in UDP listen loop", port=port, error=str(e))
-                break # Break on unexpected errors to prevent busy-looping
-
+                break  # Break on unexpected errors to prevent busy-looping
 
     def _handle_request(
         self,
@@ -273,9 +274,7 @@ class UDPServer:
             "id": request_id,
             "src": self._device.device_id,
             "dst": "unknown",
-            "result": {
-                "types": ["120A", "50A"]
-            },
+            "result": {"types": ["120A", "50A"]},
         }
 
     @staticmethod

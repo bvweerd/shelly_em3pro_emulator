@@ -33,6 +33,7 @@ class TestResult(Enum):
 @dataclass
 class RegisterSpec:
     """Specification for a Modbus register."""
+
     address: int
     size: int  # Number of 16-bit registers
     name: str
@@ -53,65 +54,144 @@ DEVICE_INFO_REGISTERS = [
 
 EM_REGISTERS = [
     # Timestamp and status
-    RegisterSpec(31000, 2, "timestamp", "uint32", description="Timestamp of last update"),
-    RegisterSpec(31002, 1, "phase_a_error", "boolean", description="Phase A meter error"),
-    RegisterSpec(31003, 1, "phase_b_error", "boolean", description="Phase B meter error"),
-    RegisterSpec(31004, 1, "phase_c_error", "boolean", description="Phase C meter error"),
-
+    RegisterSpec(
+        31000, 2, "timestamp", "uint32", description="Timestamp of last update"
+    ),
+    RegisterSpec(
+        31002, 1, "phase_a_error", "boolean", description="Phase A meter error"
+    ),
+    RegisterSpec(
+        31003, 1, "phase_b_error", "boolean", description="Phase B meter error"
+    ),
+    RegisterSpec(
+        31004, 1, "phase_c_error", "boolean", description="Phase C meter error"
+    ),
     # Totals
     RegisterSpec(31007, 2, "neutral_current", "float", "A", 0, 100, "Neutral current"),
     RegisterSpec(31011, 2, "total_current", "float", "A", 0, 500, "Total current"),
-    RegisterSpec(31013, 2, "total_active_power", "float", "W", -50000, 50000, "Total active power"),
-    RegisterSpec(31015, 2, "total_apparent_power", "float", "VA", -100000, 100000, "Total apparent power"),
-
+    RegisterSpec(
+        31013,
+        2,
+        "total_active_power",
+        "float",
+        "W",
+        -50000,
+        50000,
+        "Total active power",
+    ),
+    RegisterSpec(
+        31015,
+        2,
+        "total_apparent_power",
+        "float",
+        "VA",
+        -100000,
+        100000,
+        "Total apparent power",
+    ),
     # Phase A
-    RegisterSpec(31020, 2, "phase_a_voltage", "float", "V", 180, 280, "Phase A voltage"),
+    RegisterSpec(
+        31020, 2, "phase_a_voltage", "float", "V", 180, 280, "Phase A voltage"
+    ),
     RegisterSpec(31022, 2, "phase_a_current", "float", "A", 0, 100, "Phase A current"),
-    RegisterSpec(31024, 2, "phase_a_power", "float", "W", -20000, 20000, "Phase A active power"),
-    RegisterSpec(31026, 2, "phase_a_apparent", "float", "VA", -25000, 25000, "Phase A apparent power"),
+    RegisterSpec(
+        31024, 2, "phase_a_power", "float", "W", -20000, 20000, "Phase A active power"
+    ),
+    RegisterSpec(
+        31026,
+        2,
+        "phase_a_apparent",
+        "float",
+        "VA",
+        -25000,
+        25000,
+        "Phase A apparent power",
+    ),
     RegisterSpec(31028, 2, "phase_a_pf", "float", None, -1, 1, "Phase A power factor"),
     RegisterSpec(31033, 2, "phase_a_freq", "float", "Hz", 45, 65, "Phase A frequency"),
-
     # Phase B
-    RegisterSpec(31040, 2, "phase_b_voltage", "float", "V", 180, 280, "Phase B voltage"),
+    RegisterSpec(
+        31040, 2, "phase_b_voltage", "float", "V", 180, 280, "Phase B voltage"
+    ),
     RegisterSpec(31042, 2, "phase_b_current", "float", "A", 0, 100, "Phase B current"),
-    RegisterSpec(31044, 2, "phase_b_power", "float", "W", -20000, 20000, "Phase B active power"),
-    RegisterSpec(31046, 2, "phase_b_apparent", "float", "VA", -25000, 25000, "Phase B apparent power"),
+    RegisterSpec(
+        31044, 2, "phase_b_power", "float", "W", -20000, 20000, "Phase B active power"
+    ),
+    RegisterSpec(
+        31046,
+        2,
+        "phase_b_apparent",
+        "float",
+        "VA",
+        -25000,
+        25000,
+        "Phase B apparent power",
+    ),
     RegisterSpec(31048, 2, "phase_b_pf", "float", None, -1, 1, "Phase B power factor"),
     RegisterSpec(31053, 2, "phase_b_freq", "float", "Hz", 45, 65, "Phase B frequency"),
-
     # Phase C
-    RegisterSpec(31060, 2, "phase_c_voltage", "float", "V", 180, 280, "Phase C voltage"),
+    RegisterSpec(
+        31060, 2, "phase_c_voltage", "float", "V", 180, 280, "Phase C voltage"
+    ),
     RegisterSpec(31062, 2, "phase_c_current", "float", "A", 0, 100, "Phase C current"),
-    RegisterSpec(31064, 2, "phase_c_power", "float", "W", -20000, 20000, "Phase C active power"),
-    RegisterSpec(31066, 2, "phase_c_apparent", "float", "VA", -25000, 25000, "Phase C apparent power"),
+    RegisterSpec(
+        31064, 2, "phase_c_power", "float", "W", -20000, 20000, "Phase C active power"
+    ),
+    RegisterSpec(
+        31066,
+        2,
+        "phase_c_apparent",
+        "float",
+        "VA",
+        -25000,
+        25000,
+        "Phase C apparent power",
+    ),
     RegisterSpec(31068, 2, "phase_c_pf", "float", None, -1, 1, "Phase C power factor"),
     RegisterSpec(31073, 2, "phase_c_freq", "float", "Hz", 45, 65, "Phase C frequency"),
 ]
 
 EMDATA_REGISTERS = [
-    RegisterSpec(31160, 2, "emdata_timestamp", "uint32", description="EMData timestamp"),
-    RegisterSpec(31162, 2, "total_energy", "float", "Wh", 0, None, "Total active energy"),
-    RegisterSpec(31164, 2, "total_energy_returned", "float", "Wh", 0, None, "Total returned energy"),
-
+    RegisterSpec(
+        31160, 2, "emdata_timestamp", "uint32", description="EMData timestamp"
+    ),
+    RegisterSpec(
+        31162, 2, "total_energy", "float", "Wh", 0, None, "Total active energy"
+    ),
+    RegisterSpec(
+        31164,
+        2,
+        "total_energy_returned",
+        "float",
+        "Wh",
+        0,
+        None,
+        "Total returned energy",
+    ),
     # Phase A energy
     RegisterSpec(31170, 2, "phase_a_energy", "float", "Wh", 0, None, "Phase A energy"),
-    RegisterSpec(31174, 2, "phase_a_energy_returned", "float", "Wh", 0, None, "Phase A returned"),
-
+    RegisterSpec(
+        31174, 2, "phase_a_energy_returned", "float", "Wh", 0, None, "Phase A returned"
+    ),
     # Phase B energy
     RegisterSpec(31190, 2, "phase_b_energy", "float", "Wh", 0, None, "Phase B energy"),
-    RegisterSpec(31194, 2, "phase_b_energy_returned", "float", "Wh", 0, None, "Phase B returned"),
-
+    RegisterSpec(
+        31194, 2, "phase_b_energy_returned", "float", "Wh", 0, None, "Phase B returned"
+    ),
     # Phase C energy
     RegisterSpec(31210, 2, "phase_c_energy", "float", "Wh", 0, None, "Phase C energy"),
-    RegisterSpec(31214, 2, "phase_c_energy_returned", "float", "Wh", 0, None, "Phase C returned"),
+    RegisterSpec(
+        31214, 2, "phase_c_energy_returned", "float", "Wh", 0, None, "Phase C returned"
+    ),
 ]
 
 
 class ModbusClient:
     """Simple Modbus TCP client for testing."""
 
-    def __init__(self, host: str, port: int = 502, unit_id: int = 1, timeout: float = 5.0):
+    def __init__(
+        self, host: str, port: int = 502, unit_id: int = 1, timeout: float = 5.0
+    ):
         self.host = host
         self.port = port
         self.unit_id = unit_id
@@ -164,7 +244,7 @@ class ModbusClient:
 
             if fc == 4:
                 byte_count = response[8]
-                data = response[9:9 + byte_count]
+                data = response[9 : 9 + byte_count]
                 return list(struct.unpack(f">{len(data)//2}H", data))
             elif fc == 0x84:
                 return None
@@ -242,7 +322,9 @@ def print_result(name: str, result: TestResult, value: str = "", expected: str =
         print(f"  {status} {name}")
 
 
-def validate_register(client: ModbusClient, spec: RegisterSpec) -> tuple[TestResult, str]:
+def validate_register(
+    client: ModbusClient, spec: RegisterSpec
+) -> tuple[TestResult, str]:
     """Validate a single register against its specification."""
     registers = client.read_input_registers(spec.address, spec.size)
 
@@ -298,11 +380,9 @@ def validate_udp_protocol(client: UDPClient) -> dict:
     print("\n--- UDP JSON-RPC Protocol ---")
 
     # Test EM.GetStatus
-    response = client.send_request({
-        "id": 1,
-        "method": "EM.GetStatus",
-        "params": {"id": 0}
-    })
+    response = client.send_request(
+        {"id": 1, "method": "EM.GetStatus", "params": {"id": 0}}
+    )
 
     if response is None:
         print_result("EM.GetStatus", TestResult.FAIL, "No response")
@@ -313,9 +393,16 @@ def validate_udp_protocol(client: UDPClient) -> dict:
     else:
         result = response["result"]
         required_fields = [
-            "a_act_power", "b_act_power", "c_act_power", "total_act_power",
-            "a_voltage", "b_voltage", "c_voltage",
-            "a_current", "b_current", "c_current",
+            "a_act_power",
+            "b_act_power",
+            "c_act_power",
+            "total_act_power",
+            "a_voltage",
+            "b_voltage",
+            "c_voltage",
+            "a_current",
+            "b_current",
+            "c_current",
         ]
 
         missing = [f for f in required_fields if f not in result]
@@ -346,15 +433,15 @@ def validate_udp_protocol(client: UDPClient) -> dict:
                     print_result(f"  {field}", TestResult.PASS, f"{value}V")
                     results["pass"] += 1
                 else:
-                    print_result(f"  {field}", TestResult.WARN, f"{value}V (outside 180-280V)")
+                    print_result(
+                        f"  {field}", TestResult.WARN, f"{value}V (outside 180-280V)"
+                    )
                     results["warn"] += 1
 
     # Test EM1.GetStatus
-    response = client.send_request({
-        "id": 2,
-        "method": "EM1.GetStatus",
-        "params": {"id": 0}
-    })
+    response = client.send_request(
+        {"id": 2, "method": "EM1.GetStatus", "params": {"id": 0}}
+    )
 
     if response is None:
         print_result("EM1.GetStatus", TestResult.FAIL, "No response")
@@ -402,32 +489,18 @@ def main():
         description="Validate Shelly Pro 3EM Emulator against specification"
     )
     parser.add_argument(
-        "--host",
-        default="localhost",
-        help="Emulator host address (default: localhost)"
+        "--host", default="localhost", help="Emulator host address (default: localhost)"
     )
     parser.add_argument(
-        "--modbus-port",
-        type=int,
-        default=502,
-        help="Modbus TCP port (default: 502)"
+        "--modbus-port", type=int, default=502, help="Modbus TCP port (default: 502)"
     )
     parser.add_argument(
-        "--udp-port",
-        type=int,
-        default=1010,
-        help="UDP JSON-RPC port (default: 1010)"
+        "--udp-port", type=int, default=1010, help="UDP JSON-RPC port (default: 1010)"
     )
     parser.add_argument(
-        "--skip-modbus",
-        action="store_true",
-        help="Skip Modbus validation"
+        "--skip-modbus", action="store_true", help="Skip Modbus validation"
     )
-    parser.add_argument(
-        "--skip-udp",
-        action="store_true",
-        help="Skip UDP validation"
-    )
+    parser.add_argument("--skip-udp", action="store_true", help="Skip UDP validation")
 
     args = parser.parse_args()
 
@@ -454,7 +527,9 @@ def main():
                 total_results[k] += v
             modbus.close()
         else:
-            print(f"Failed to connect to Modbus server at {args.host}:{args.modbus_port}")
+            print(
+                f"Failed to connect to Modbus server at {args.host}:{args.modbus_port}"
+            )
             total_results["fail"] += 1
 
     # UDP validation
@@ -481,13 +556,13 @@ def main():
     print(f"  \033[92mPASS: {total_results['pass']}\033[0m")
     print(f"  \033[91mFAIL: {total_results['fail']}\033[0m")
     print(f"  \033[93mWARN: {total_results['warn']}\033[0m")
-    if total_results.get('skip', 0) > 0:
+    if total_results.get("skip", 0) > 0:
         print(f"  \033[90mSKIP: {total_results['skip']}\033[0m")
 
-    if total_results['fail'] > 0:
+    if total_results["fail"] > 0:
         print("\n\033[91mValidation FAILED\033[0m")
         return 1
-    elif total_results['warn'] > 0:
+    elif total_results["warn"] > 0:
         print("\n\033[93mValidation PASSED with warnings\033[0m")
         return 0
     else:
