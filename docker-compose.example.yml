@@ -1,0 +1,52 @@
+# Shelly Pro 3EM Emulator - Docker Compose
+#
+# USAGE:
+# 1. Copy this file to your preferred directory
+# 2. Create a config.yaml file in the SAME directory (see config.example.yaml)
+# 3. Run: docker compose up -d
+#
+# Your directory structure should look like:
+#   /your/directory/
+#   ├── docker-compose.yml  (this file)
+#   └── config.yaml         (your configuration)
+
+services:
+  shelly-emulator:
+    image: ghcr.io/bvweerd/shelly-emulator:latest
+    container_name: shelly-emulator
+    # Host network mode is required for:
+    # - UDP broadcast reception from Marstek devices
+    # - mDNS discovery to work correctly
+    # - Marstek devices to discover the emulator
+    network_mode: host
+    volumes:
+      # Mount your local config.yaml into the container
+      # The config.yaml must be in the same directory as this docker-compose.yml
+      - ./config.yaml:/app/config/config.yaml:ro
+    environment:
+      - LOG_LEVEL=INFO
+      - CONFIG_PATH=/app/config/config.yaml
+    restart: unless-stopped
+
+# =============================================================================
+# ALTERNATIVE: Bridge network mode (if host mode doesn't work for you)
+# =============================================================================
+# Uncomment the section below and comment out the section above if you need
+# to use bridge networking. Note: UDP broadcast discovery may not work!
+#
+# services:
+#   shelly-emulator:
+#     image: ghcr.io/bvweerd/shelly-emulator:latest
+#     container_name: shelly-emulator
+#     ports:
+#       - "502:502"         # Modbus TCP
+#       - "1010:1010/udp"   # UDP JSON-RPC (firmware <= v224)
+#       - "2220:2220/udp"   # UDP JSON-RPC (firmware >= v226)
+#       - "80:80"           # HTTP API (Gen2)
+#       - "5353:5353/udp"   # mDNS discovery
+#     volumes:
+#       - ./config.yaml:/app/config/config.yaml:ro
+#     environment:
+#       - LOG_LEVEL=INFO
+#       - CONFIG_PATH=/app/config/config.yaml
+#     restart: unless-stopped

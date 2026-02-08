@@ -1,0 +1,20 @@
+# Development Docker Compose - for building from source
+#
+# This file is for development purposes.
+# For production use, see ../docker-compose.yml in the repository root.
+
+services:
+  shelly-emulator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        VERSION: dev
+    container_name: shelly-emulator-dev
+    network_mode: host
+    volumes:
+      - ../config.yaml:/app/config/config.yaml:ro
+    environment:
+      - LOG_LEVEL=DEBUG
+      - CONFIG_PATH=/app/config/config.yaml
+    restart: unless-stopped

@@ -1,0 +1,98 @@
+# Shelly Pro 3EM Emulator Configuration
+
+# Shelly device settings
+shelly:
+  device_id: "shellypro3em-emulator"
+  device_name: "Shelly Pro 3EM Emulator"
+  # MAC address (will be generated if not specified)
+  mac_address: "AA:BB:CC:DD:EE:FF"
+
+# Server settings
+servers:
+  modbus:
+    enabled: true
+    host: "0.0.0.0"
+    port: 502
+    unit_id: 1
+  udp:
+    enabled: true
+    host: "0.0.0.0"
+    ports:
+      - 1010  # Marstek firmware <= v224 / Venus / Jupiter
+      - 2220  # Marstek firmware >= v226
+  http:
+    enabled: false
+    host: "0.0.0.0"
+    port: 80
+  mdns:
+    enabled: false
+    host: ""  # IP address to advertise (empty = auto-detect)
+
+# Home Assistant connection
+homeassistant:
+  url: "http://192.168.1.100:8123"
+  token: "YOUR_LONG_LIVED_ACCESS_TOKEN"
+  use_https: false
+  verify_ssl: true
+  # Poll interval in seconds
+  poll_interval: 2
+  # Timeout for API requests in seconds
+  timeout: 10
+
+# DSMR entity mapping
+dsmr:
+  # AUTO-DISCOVERY (default: true)
+  # When enabled, the emulator automatically discovers DSMR entities
+  # from Home Assistant. This is the recommended setting.
+  # Set to false only if you need to manually specify entities.
+  auto_discover: true
+
+  # ============================================================
+  # MANUAL CONFIGURATION (only used when auto_discover: false)
+  # ============================================================
+  # Uncomment and configure the sections below if you disable
+  # auto-discovery and want to manually specify entity IDs.
+
+  # Option 1: Single phase (net power - positive = consumption, negative = production)
+  # single_phase:
+  #   power: "sensor.electricity_meter_power_consumption"
+
+  # Option 2: Three phase configuration
+  # Note: Most Dutch smart meters don't provide voltage readings!
+  # The emulator uses 230V as default when voltage is not available.
+  # Power values in kW are automatically converted to W.
+  #
+  # Typical DSMR entity names (check Developer Tools > States in HA):
+  # - sensor.electricity_meter_instantaneous_active_power_l1_positive
+  # - sensor.electricity_meter_instantaneous_active_power_l1_negative
+  # - sensor.electricity_meter_instantaneous_current_l1
+  #
+  # three_phase:
+  #   phase_a:
+  #     # voltage: ""  # Often not available in DSMR, uses 230V default
+  #     current: "sensor.electricity_meter_instantaneous_current_l1"
+  #     power: "sensor.electricity_meter_instantaneous_active_power_l1_positive"
+  #     power_returned: "sensor.electricity_meter_instantaneous_active_power_l1_negative"
+  #   phase_b:
+  #     current: "sensor.electricity_meter_instantaneous_current_l2"
+  #     power: "sensor.electricity_meter_instantaneous_active_power_l2_positive"
+  #     power_returned: "sensor.electricity_meter_instantaneous_active_power_l2_negative"
+  #   phase_c:
+  #     current: "sensor.electricity_meter_instantaneous_current_l3"
+  #     power: "sensor.electricity_meter_instantaneous_active_power_l3_positive"
+  #     power_returned: "sensor.electricity_meter_instantaneous_active_power_l3_negative"
+
+  # Energy totals (optional, for EMData registers)
+  # totals:
+  #   energy_delivered: "sensor.electricity_meter_energy_consumption_total"
+  #   energy_returned: "sensor.electricity_meter_energy_production_total"
+  #   # Or use tariff-based sensors:
+  #   # energy_delivered_tariff_1: "sensor.electricity_meter_energy_consumption_tariff_1"
+  #   # energy_delivered_tariff_2: "sensor.electricity_meter_energy_consumption_tariff_2"
+  #   # energy_returned_tariff_1: "sensor.electricity_meter_energy_production_tariff_1"
+  #   # energy_returned_tariff_2: "sensor.electricity_meter_energy_production_tariff_2"
+
+# Logging configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
