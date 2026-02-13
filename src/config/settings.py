@@ -232,8 +232,37 @@ def load_addon_config() -> "Settings":
     settings.homeassistant.url = "http://supervisor/core"
     settings.homeassistant.token = os.environ["SUPERVISOR_TOKEN"]
     settings.homeassistant.poll_interval = float(options.get("poll_interval", 1))
-    settings.dsmr.auto_discover = bool(options.get("auto_discover", True))
     settings.logging.level = str(options.get("log_level", "info")).upper()
+
+    settings.dsmr.auto_discover = bool(options.get("auto_discover", True))
+
+    # Manual single-phase override
+    single_phase_power = options.get("single_phase_power", "")
+    if single_phase_power:
+        settings.dsmr.single_phase = {"power": single_phase_power}
+
+    # Manual three-phase override
+    three_phase: dict = {}
+    for phase_key, phase_name in [("a", "phase_a"), ("b", "phase_b"), ("c", "phase_c")]:
+        phase: dict = {}
+        for field_name in ("power", "power_returned", "current"):
+            value = options.get(f"{phase_name}_{field_name}", "")
+            if value:
+                phase[field_name] = value
+        if phase:
+            three_phase[f"phase_{phase_key}"] = phase
+    if three_phase:
+        settings.dsmr.three_phase = three_phase
+
+    # Manual totals override
+    energy_delivered = options.get("energy_delivered", "")
+    energy_returned = options.get("energy_returned", "")
+    if energy_delivered or energy_returned:
+        settings.dsmr.totals = TotalsConfig(
+            energy_delivered=energy_delivered,
+            energy_returned=energy_returned,
+        )
+
     return settings
 
 

@@ -8,3 +8,39 @@ configuration:
   auto_discover:
     name: Auto-discover DSMR entities
     description: Automatically find DSMR sensor entities in Home Assistant (recommended)
+  single_phase_power:
+    name: Single-phase power entity
+    description: "Entity ID for net power (positive = consumption, negative = production). Leave empty when using three-phase."
+  phase_a_power:
+    name: Phase A - power consumed
+    description: Entity ID for phase A active power consumption (W or kW)
+  phase_a_power_returned:
+    name: Phase A - power returned
+    description: Entity ID for phase A active power production (W or kW)
+  phase_a_current:
+    name: Phase A - current
+    description: Entity ID for phase A current (A)
+  phase_b_power:
+    name: Phase B - power consumed
+    description: Entity ID for phase B active power consumption (W or kW)
+  phase_b_power_returned:
+    name: Phase B - power returned
+    description: Entity ID for phase B active power production (W or kW)
+  phase_b_current:
+    name: Phase B - current
+    description: Entity ID for phase B current (A)
+  phase_c_power:
+    name: Phase C - power consumed
+    description: Entity ID for phase C active power consumption (W or kW)
+  phase_c_power_returned:
+    name: Phase C - power returned
+    description: Entity ID for phase C active power production (W or kW)
+  phase_c_current:
+    name: Phase C - current
+    description: Entity ID for phase C current (A)
+  energy_delivered:
+    name: Total energy delivered
+    description: Entity ID for cumulative energy consumption (kWh)
+  energy_returned:
+    name: Total energy returned
+    description: Entity ID for cumulative energy production (kWh)
