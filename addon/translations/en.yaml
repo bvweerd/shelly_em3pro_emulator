@@ -1,0 +1,10 @@
+configuration:
+  log_level:
+    name: Log level
+    description: Verbosity of logging output
+  poll_interval:
+    name: Poll interval (seconds)
+    description: How often to fetch data from Home Assistant (1s recommended for Marstek)
+  auto_discover:
+    name: Auto-discover DSMR entities
+    description: Automatically find DSMR sensor entities in Home Assistant (recommended)

@@ -1,5 +1,6 @@
 """Configuration settings module."""
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -214,6 +215,28 @@ class Settings:
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 
+def _is_addon_mode() -> bool:
+    """Check if running as a Home Assistant add-on."""
+    return "SUPERVISOR_TOKEN" in os.environ
+
+
+def load_addon_config() -> "Settings":
+    """Load configuration from HA add-on options (/data/options.json)."""
+    options: dict = {}
+    options_path = Path("/data/options.json")
+    if options_path.exists():
+        with open(options_path) as f:
+            options = json.load(f)
+
+    settings = Settings()
+    settings.homeassistant.url = "http://supervisor/core"
+    settings.homeassistant.token = os.environ["SUPERVISOR_TOKEN"]
+    settings.homeassistant.poll_interval = float(options.get("poll_interval", 1))
+    settings.dsmr.auto_discover = bool(options.get("auto_discover", True))
+    settings.logging.level = str(options.get("log_level", "info")).upper()
+    return settings
+
+
 def load_config(config_path: Optional[str] = None) -> Settings:
     """Load configuration from YAML file.
 
@@ -224,6 +247,9 @@ def load_config(config_path: Optional[str] = None) -> Settings:
     Returns:
         Settings object with loaded configuration.
     """
+    if _is_addon_mode():
+        return load_addon_config()
+
     if config_path is None:
         config_path = os.environ.get("CONFIG_PATH", "config/config.yaml")
 
