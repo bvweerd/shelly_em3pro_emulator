@@ -1,8 +1,8 @@
 # Shelly Pro 3EM Emulator
 
-[![CI](https://github.com/bvweerd/shelly-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/bvweerd/shelly-emulator/actions/workflows/ci.yml)
-[![Release](https://github.com/bvweerd/shelly-emulator/actions/workflows/release.yml/badge.svg)](https://github.com/bvweerd/shelly-emulator/actions/workflows/release.yml)
-[![Docker Image](https://ghcr-badge.egpl.dev/bvweerd/shelly-emulator/latest_tag?trim=major&label=version)](https://github.com/bvweerd/shelly-emulator/pkgs/container/shelly-emulator)
+[![CI](https://github.com/bvweerd/shelly_em3pro_emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/bvweerd/shelly_em3pro_emulator/actions/workflows/ci.yml)
+[![Release](https://github.com/bvweerd/shelly_em3pro_emulator/actions/workflows/release.yml/badge.svg)](https://github.com/bvweerd/shelly_em3pro_emulator/actions/workflows/release.yml)
+[![Docker Image](https://ghcr-badge.egpl.dev/bvweerd/shelly_em3pro_emulator/latest_tag?trim=major&label=version)](https://github.com/bvweerd/shelly_em3pro_emulator/pkgs/container/shelly_em3pro_emulator)
 
 A Docker container with a Python application that emulates a Shelly Pro 3EM energy meter for Marstek home batteries (Venus A, Jupiter, B2500). The emulator retrieves data from Home Assistant via the DSMR integration and makes it available via Modbus TCP and UDP JSON-RPC protocols.
 
