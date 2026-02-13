@@ -1,0 +1,43 @@
+name: "Shelly Pro 3EM Emulator"
+description: "Emulates a Shelly Pro 3EM for Marstek home batteries (Venus, Jupiter, B2500)"
+version: "0.0.0"
+slug: "shelly_em3pro_emulator"
+url: "https://github.com/bvweerd/shelly_em3pro_emulator"
+arch: [amd64, aarch64]
+init: false
+homeassistant_api: true
+hassio_api: true
+host_network: true
+image: "ghcr.io/bvweerd/shelly_em3pro_emulator-addon"
+options:
+  log_level: "info"
+  poll_interval: 1
+  auto_discover: true
+  single_phase_power: ""
+  phase_a_power: ""
+  phase_a_power_returned: ""
+  phase_a_current: ""
+  phase_b_power: ""
+  phase_b_power_returned: ""
+  phase_b_current: ""
+  phase_c_power: ""
+  phase_c_power_returned: ""
+  phase_c_current: ""
+  energy_delivered: ""
+  energy_returned: ""
+schema:
+  log_level: "list(debug|info|warning|error)"
+  poll_interval: int
+  auto_discover: bool
+  single_phase_power: str?
+  phase_a_power: str?
+  phase_a_power_returned: str?
+  phase_a_current: str?
+  phase_b_power: str?
+  phase_b_power_returned: str?
+  phase_b_current: str?
+  phase_c_power: str?
+  phase_c_power_returned: str?
+  phase_c_current: str?
+  energy_delivered: str?
+  energy_returned: str?
