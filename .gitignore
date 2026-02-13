@@ -74,6 +74,7 @@ venv.bak/
 config.yaml
 config/config.yaml
 docker/config.yaml
+!addon/config.yaml
 .python-version
 
 # Logs

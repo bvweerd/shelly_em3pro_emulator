@@ -8,6 +8,21 @@ configuration:
   auto_discover:
     name: Auto-discover DSMR entities
     description: Automatically find DSMR sensor entities in Home Assistant (recommended)
+  modbus_enabled:
+    name: Enable Modbus server
+    description: "Modbus TCP server on port 502 (required for most Marstek devices)"
+  udp_enabled:
+    name: Enable UDP server
+    description: "UDP JSON-RPC server on ports 1010 / 2220 / 22222 (required for Marstek discovery)"
+  http_enabled:
+    name: Enable HTTP server
+    description: "Shelly Gen2 HTTP/WebSocket API"
+  http_port:
+    name: HTTP server port
+    description: "Port for the HTTP/WebSocket API (default: 8812)"
+  mdns_enabled:
+    name: Enable mDNS discovery
+    description: "Advertise the emulator via mDNS so Shelly-compatible apps can find it"
   single_phase_power:
     name: Single-phase power entity
     description: "Entity ID for net power (positive = consumption, negative = production). Leave empty when using three-phase."

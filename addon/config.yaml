@@ -13,6 +13,11 @@ options:
   log_level: "info"
   poll_interval: 1
   auto_discover: true
+  modbus_enabled: true
+  udp_enabled: true
+  http_enabled: true
+  http_port: 8812
+  mdns_enabled: true
   single_phase_power: ""
   phase_a_power: ""
   phase_a_power_returned: ""
@@ -29,6 +34,11 @@ schema:
   log_level: "list(debug|info|warning|error)"
   poll_interval: int
   auto_discover: bool
+  modbus_enabled: bool
+  udp_enabled: bool
+  http_enabled: bool
+  http_port: int
+  mdns_enabled: bool
   single_phase_power: str?
   phase_a_power: str?
   phase_a_power_returned: str?

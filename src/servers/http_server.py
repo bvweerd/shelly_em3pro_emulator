@@ -205,7 +205,7 @@ class HTTPServer:
         keys_filter = params.get("keys")
 
         # Define static components for Pro 3EM
-        all_components = [
+        all_components: list[dict[str, Any]] = [
             {"key": "em:0"},
             {"key": "emdata:0"},
         ]
@@ -514,7 +514,7 @@ class HTTPServer:
             em_id = params.get("id", 0) if params else 0
 
             if method == "Shelly.ListMethods":
-                result = {
+                result: dict[str, Any] = {
                     "methods": [
                         "Shelly.ListMethods",
                         "Shelly.GetDeviceInfo",

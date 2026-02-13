@@ -234,6 +234,12 @@ def load_addon_config() -> "Settings":
     settings.homeassistant.poll_interval = float(options.get("poll_interval", 1))
     settings.logging.level = str(options.get("log_level", "info")).upper()
 
+    settings.servers.modbus.enabled = bool(options.get("modbus_enabled", True))
+    settings.servers.udp.enabled = bool(options.get("udp_enabled", True))
+    settings.servers.http.enabled = bool(options.get("http_enabled", True))
+    settings.servers.http.port = int(options.get("http_port", 8812))
+    settings.servers.mdns.enabled = bool(options.get("mdns_enabled", True))
+
     settings.dsmr.auto_discover = bool(options.get("auto_discover", True))
 
     # Manual single-phase override
