@@ -49,10 +49,13 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
 
-      - name: Update version in source
+      - name: Update versions
         run: |
-          sed -i "s/__version__ = \".*\"/__version__ = \"${{ steps.version.outputs.version }}\"/" src/__init__.py
+          VERSION=${{ steps.version.outputs.version }}
+          sed -i "s/__version__ = \".*\"/__version__ = \"$VERSION\"/" src/__init__.py
+          sed -i "s/^version: \".*\"/version: \"$VERSION\"/" addon/config.yaml
           cat src/__init__.py
+          grep "^version:" addon/config.yaml
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -94,6 +97,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push add-on Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./addon/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ github.repository }}-addon:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository }}-addon:latest
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ steps.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Generate changelog
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v6
@@ -115,20 +134,15 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body: |
-            ## Docker Image
-
-            Pull the image from GitHub Container Registry:
+            ## Docker Image (standalone)
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
             ```
 
-            Or use the latest tag:
-            ```bash
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ```
+            ## Home Assistant Add-on
+            Voeg `https://github.com/bvweerd/shelly_em3pro_emulator` toe als custom repository.
 
             ## Changes
-
             ${{ steps.changelog.outputs.changelog }}
           generate_release_notes: true
         env:

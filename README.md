@@ -15,10 +15,25 @@ A Docker container with a Python application that emulates a Shelly Pro 3EM ener
 - **mDNS discovery** - Automatically discoverable by Home Assistant and other Shelly-compatible systems
 - **Real-time updates** - WebSocket push notifications for instant state changes
 - **Docker ready** - Easy deployment via Docker container
+- **Home Assistant Add-on** - Install directly from the HA UI, no manual token or config needed
 
 ## Quick Start
 
-### 1. Configuration
+### Option A: Home Assistant Add-on (easiest)
+
+1. Open Home Assistant → **Settings** → **Add-ons** → ⋮ → **Repositories**
+2. Add `https://github.com/bvweerd/shelly_em3pro_emulator`
+3. Find **Shelly Pro 3EM Emulator** in the add-on store and install it
+4. Configure via the add-on UI (log level, poll interval, auto-discover)
+5. Start the add-on
+
+Authentication and the Home Assistant URL are configured automatically via the Supervisor — no long-lived token required.
+
+---
+
+### Option B: Docker (standalone)
+
+#### 1. Configuration
 
 Copy the example configuration file:
 
@@ -38,14 +53,14 @@ dsmr:
   auto_discover: true
 ```
 
-### 2. Create Home Assistant Token
+#### 2. Create Home Assistant Token
 
 1. Go to your Home Assistant profile (click on your name in the bottom left)
 2. Scroll to "Long-Lived Access Tokens"
 3. Click "Create Token"
 4. Give it a name (e.g., "Shelly Emulator") and copy the token
 
-### 3. Start with Docker
+#### 3. Start with Docker
 
 **Option A: Use the pre-built image (recommended)**
 
@@ -93,7 +108,7 @@ docker run -d --network host \
   ghcr.io/bvweerd/shelly-emulator:latest
 ```
 
-### 4. Start without Docker
+#### 4. Start without Docker
 
 ```bash
 # Install dependencies
@@ -491,11 +506,14 @@ git push origin v1.0.0
 
 This automatically:
 1. Runs all tests
-2. Builds multi-platform Docker images (amd64, arm64)
+2. Builds multi-platform Docker images (amd64, arm64) for both standalone and add-on
 3. Pushes to GitHub Container Registry with version tags
-4. Creates a GitHub Release with changelog
+4. Updates `addon/config.yaml` version
+5. Creates a GitHub Release with changelog
 
 ### Docker Image Tags
+
+**Standalone image** (`ghcr.io/bvweerd/shelly_em3pro_emulator`):
 
 | Tag | Description |
 |-----|-------------|
@@ -504,12 +522,18 @@ This automatically:
 | `v1.2` | Latest patch of v1.2.x |
 | `v1` | Latest minor/patch of v1.x.x |
 
-```bash
-# Pull specific version
-docker pull ghcr.io/bvweerd/shelly-emulator:v1.0.0
+**Add-on image** (`ghcr.io/bvweerd/shelly_em3pro_emulator-addon`):
 
-# Pull latest
-docker pull ghcr.io/bvweerd/shelly-emulator:latest
+| Tag | Description |
+|-----|-------------|
+| `latest` | Latest stable release |
+| `v1.2.3` | Specific version |
+
+```bash
+# Pull standalone image
+docker pull ghcr.io/bvweerd/shelly_em3pro_emulator:latest
+
+# Add-on image is pulled automatically by Home Assistant
 ```
 
 ## License
