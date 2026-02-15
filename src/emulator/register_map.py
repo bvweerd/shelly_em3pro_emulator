@@ -9,7 +9,8 @@ import struct
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from .data_manager import MeterData
 from .shelly_device import ShellyDevice
@@ -34,7 +35,7 @@ class RegisterDefinition:
     register_type: RegisterType
     size: int  # Number of 16-bit registers
     description: str
-    getter: Optional[Callable[["RegisterMap"], list[int]]] = None
+    getter: Callable[["RegisterMap"], list[int]] | None = None
 
 
 class RegisterMap:
@@ -47,7 +48,7 @@ class RegisterMap:
             device: Shelly device configuration.
         """
         self._device = device
-        self._data: Optional[MeterData] = None
+        self._data: MeterData | None = None
 
         # Build register definitions
         self._registers: dict[int, RegisterDefinition] = {}
@@ -242,7 +243,7 @@ class RegisterMap:
             phase: Phase identifier (a, b, c).
         """
 
-        def get_phase_data(rm: "RegisterMap"):
+        def get_phase_data(rm: "RegisterMap") -> Any:
             if not rm._data:
                 return None
             return getattr(rm._data, f"phase_{phase}")
@@ -390,7 +391,7 @@ class RegisterMap:
             phase: Phase identifier (a, b, c).
         """
 
-        def get_phase_data(rm: "RegisterMap"):
+        def get_phase_data(rm: "RegisterMap") -> Any:
             if not rm._data:
                 return None
             return getattr(rm._data, f"phase_{phase}")

@@ -3,7 +3,6 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 import os
 
 import yaml
@@ -106,20 +105,20 @@ class DSMRConfig:
     auto_discover: bool = True
 
     # Manual configuration (used when auto_discover is False)
-    single_phase: Optional[dict] = None
-    three_phase: Optional[dict] = None
+    single_phase: dict | None = None
+    three_phase: dict | None = None
     totals: TotalsConfig = field(default_factory=TotalsConfig)
 
     # Discovered configuration (populated at runtime)
-    _discovered_three_phase: Optional[dict] = field(default=None, repr=False)
-    _discovered_single_phase: Optional[dict] = field(default=None, repr=False)
-    _discovered_totals: Optional[TotalsConfig] = field(default=None, repr=False)
+    _discovered_three_phase: dict | None = field(default=None, repr=False)
+    _discovered_single_phase: dict | None = field(default=None, repr=False)
+    _discovered_totals: TotalsConfig | None = field(default=None, repr=False)
     _is_discovered_three_phase: bool = field(default=False, repr=False)
 
     def set_discovered_entities(
         self,
-        single_phase: Optional[dict],
-        three_phase: Optional[dict],
+        single_phase: dict | None,
+        three_phase: dict | None,
         totals: TotalsConfig,
         is_three_phase: bool,
     ) -> None:
@@ -155,7 +154,7 @@ class DSMRConfig:
         """Get single phase power entity."""
         single = self._get_active_single_phase()
         if single:
-            return single.get("power", "")
+            return str(single.get("power", ""))
         return ""
 
     def get_totals(self) -> TotalsConfig:
@@ -171,13 +170,13 @@ class DSMRConfig:
 
         return self.three_phase is not None and len(self.three_phase) > 0
 
-    def _get_active_three_phase(self) -> Optional[dict]:
+    def _get_active_three_phase(self) -> dict | None:
         """Get the active three-phase configuration."""
         if self.auto_discover and self._discovered_three_phase:
             return self._discovered_three_phase
         return self.three_phase
 
-    def _get_active_single_phase(self) -> Optional[dict]:
+    def _get_active_single_phase(self) -> dict | None:
         """Get the active single-phase configuration."""
         if self.auto_discover and self._discovered_single_phase:
             return self._discovered_single_phase
@@ -272,7 +271,7 @@ def load_addon_config() -> "Settings":
     return settings
 
 
-def load_config(config_path: Optional[str] = None) -> Settings:
+def load_config(config_path: str | None = None) -> Settings:
     """Load configuration from YAML file.
 
     Args:
@@ -306,7 +305,7 @@ def load_config(config_path: Optional[str] = None) -> Settings:
         # Return defaults
         return Settings()
 
-    with open(path, "r") as f:
+    with open(path) as f:
         data = yaml.safe_load(f) or {}
 
     return _parse_config(data)

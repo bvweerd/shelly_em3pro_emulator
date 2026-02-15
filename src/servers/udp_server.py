@@ -4,7 +4,6 @@ import json
 import socket
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
 
 from ..config import get_logger
 from ..emulator.data_manager import DataManager, build_em_status
@@ -24,7 +23,7 @@ class UDPServer:
         device: ShellyDevice,
         data_manager: DataManager,
         host: str = "0.0.0.0",
-        ports: Optional[list[int]] = None,
+        ports: list[int] | None = None,
     ):
         """Initialize the UDP server.
 
@@ -109,17 +108,17 @@ class UDPServer:
                 data, addr = sock.recvfrom(4096)
                 # If data is empty during shutdown, exit cleanly
                 if not data and not self._running:
-                    break
+                    break  # type: ignore[unreachable]
                 if (
                     not self._running
                 ):  # Check again in case of race condition before processing
-                    break
+                    break  # type: ignore[unreachable]
                 self._executor.submit(self._handle_request, sock, data, addr, port)
-            except socket.timeout:
+            except TimeoutError:
                 continue
-            except (OSError, socket.error, ValueError) as e:  # Catch ValueError too
+            except (OSError, ValueError) as e:  # Catch ValueError too
                 if not self._running:  # If stopping, just break silently
-                    break
+                    break  # type: ignore[unreachable]
                 # Otherwise, it's an unexpected error
                 logger.error("Socket error in UDP listen loop", port=port, error=str(e))
                 break  # Break on unexpected errors to prevent busy-looping
@@ -170,7 +169,7 @@ class UDPServer:
         except Exception as e:
             logger.error("Error handling UDP request", error=str(e))
 
-    def _process_request(self, request: dict) -> Optional[dict]:
+    def _process_request(self, request: dict) -> dict | None:
         """Process a JSON-RPC request.
 
         Args:

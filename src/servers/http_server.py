@@ -8,7 +8,7 @@ import asyncio
 import json
 import threading
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -25,21 +25,21 @@ logger = get_logger(__name__)
 class JsonRpcRequest(BaseModel):
     jsonrpc: str = "2.0"
     method: str
-    params: Optional[Dict[str, Any]] = None
-    id: Optional[int] = None
+    params: dict[str, Any] | None = None
+    id: int | None = None
 
 
 class JsonRpcResponse(BaseModel):
     jsonrpc: str = "2.0"
-    result: Optional[Any] = None
-    error: Optional[Dict[str, Any]] = None
-    id: Optional[int] = None
+    result: Any | None = None
+    error: dict[str, Any] | None = None
+    id: int | None = None
 
 
 class JsonRpcError(BaseModel):
     code: int
     message: str
-    data: Optional[Any] = None
+    data: Any | None = None
 
 
 class HTTPServer:
@@ -55,14 +55,14 @@ class HTTPServer:
         self.host = host
         self.port = port
         self.app_instance = FastAPI(title="Shelly Pro 3EM Emulator")
-        self.server_thread: Optional[threading.Thread] = None
+        self.server_thread: threading.Thread | None = None
         self.uvicorn_server = None
         # Map WebSocket -> client source ID for proper dst in notifications
-        self.websocket_clients: Dict[WebSocket, str] = {}
+        self.websocket_clients: dict[WebSocket, str] = {}
 
-        self._last_pushed_status: Optional[dict] = None
+        self._last_pushed_status: dict | None = None
         self._push_task_stop_event = asyncio.Event()
-        self._push_task: Optional[asyncio.Task] = None
+        self._push_task: asyncio.Task | None = None
 
         # New event for Uvicorn server shutdown
         self._server_stop_event = asyncio.Event()
@@ -186,7 +186,7 @@ class HTTPServer:
             "em:0": self._get_em_config(0),
         }
 
-    def _get_components(self, params: Optional[dict] = None) -> dict:
+    def _get_components(self, params: dict | None = None) -> dict:
         """Get device components (Gen2 Shelly.GetComponents).
 
         This method returns the list of components on the device.
@@ -253,9 +253,9 @@ class HTTPServer:
         # Fields to ignore for comparison (they change constantly)
         ignore_fields = ["time", "unixtime", "uptime"]
 
-        def clean_status(status_dict):
+        def clean_status(status_dict: dict) -> dict:
             # Create a deep copy to avoid modifying original dictionaries
-            cleaned = json.loads(json.dumps(status_dict))
+            cleaned: dict = json.loads(json.dumps(status_dict))
             if "sys" in cleaned:
                 for field in ignore_fields:
                     cleaned["sys"].pop(field, None)
@@ -312,7 +312,7 @@ class HTTPServer:
             try:
                 await asyncio.wait_for(client.send_text(notification_json), timeout=5.0)
                 logger.debug(f"WebSocket NotifyStatus sent to {client.client}")
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.warning(
                     f"WebSocket send timeout for {client.client}, removing zombie connection"
                 )
@@ -357,7 +357,9 @@ class HTTPServer:
         """Stop the WebSocket push background task."""
         if self._push_task:
             self._push_task_stop_event.set()
-            await self._push_task  # Wait for the task to finish its current loop iteration and stop
+            await (
+                self._push_task
+            )  # Wait for the task to finish its current loop iteration and stop
             self._push_task = None
 
     def _setup_routes(self):
@@ -373,7 +375,7 @@ class HTTPServer:
 
         # Gen2 JSON-RPC endpoint
         @self.app_instance.post("/rpc")
-        async def rpc_post(request: JsonRpcRequest):
+        async def rpc_post(request: JsonRpcRequest) -> JsonRpcResponse:
             """JSON-RPC 2.0 endpoint for all RPC methods."""
             return await self._handle_rpc(request.method, request.params, request.id)
 
@@ -391,15 +393,15 @@ class HTTPServer:
             return self._get_full_config()
 
         @self.app_instance.get("/rpc/EM.GetStatus")
-        async def rpc_em_get_status(id: int = 0):
+        async def rpc_em_get_status(id: int = 0) -> dict:
             return self._get_em_status(id)
 
         @self.app_instance.get("/rpc/EM.GetConfig")
-        async def rpc_em_get_config(id: int = 0):
+        async def rpc_em_get_config(id: int = 0) -> dict:
             return self._get_em_config(id)
 
         @self.app_instance.get("/rpc/EMData.GetStatus")
-        async def rpc_emdata_get_status(id: int = 0):
+        async def rpc_emdata_get_status(id: int = 0) -> dict:
             return self._get_emdata_status(id)
 
         @self.app_instance.get("/rpc/Shelly.ListMethods")
@@ -425,7 +427,7 @@ class HTTPServer:
         """Setup WebSocket endpoint for Gen2 RPC."""
 
         @self.app_instance.websocket("/rpc")
-        async def websocket_rpc(websocket: WebSocket):
+        async def websocket_rpc(websocket: WebSocket) -> None:
             """WebSocket endpoint for JSON-RPC communication (required by Home Assistant)."""
             await websocket.accept()
             # Default client source until we receive their first message with src
@@ -507,7 +509,7 @@ class HTTPServer:
                     )
 
     async def _handle_rpc(
-        self, method: str, params: Optional[dict], request_id: Optional[int]
+        self, method: str, params: dict | None, request_id: int | None
     ) -> JsonRpcResponse:
         """Handle JSON-RPC request."""
         try:

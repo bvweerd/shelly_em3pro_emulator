@@ -4,9 +4,8 @@ import dataclasses
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Optional
 
-from ..config import get_logger, Settings, TotalsConfig
+from ..config import get_logger, Settings, TotalsConfig, PhaseConfig
 from ..data_sources import HomeAssistantClient, discover_dsmr_entities
 
 logger = get_logger(__name__)
@@ -163,9 +162,9 @@ class DataManager:
         self._data = MeterData()
         self._lock = threading.RLock()
         self._stop_event = threading.Event()
-        self._poll_thread: Optional[threading.Thread] = None
+        self._poll_thread: threading.Thread | None = None
         # Track last_updated timestamps per entity to sync with P1 meter updates
-        self._last_timestamps: dict[str, Optional[str]] = {}
+        self._last_timestamps: dict[str, str | None] = {}
 
         # Initialize Home Assistant client
         ha_config = settings.homeassistant
@@ -463,7 +462,7 @@ class DataManager:
             valid=new_data.is_valid,
         )
 
-    def _fetch_phase_data(self, config, phase_data: PhaseData) -> bool:
+    def _fetch_phase_data(self, config: "PhaseConfig", phase_data: PhaseData) -> bool:
         """Fetch data for a single phase.
 
         Uses get_entity_with_unit() for power entities to combine value fetching

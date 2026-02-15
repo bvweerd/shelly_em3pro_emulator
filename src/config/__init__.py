@@ -3,6 +3,7 @@
 from .settings import (
     Settings,
     load_config,
+    PhaseConfig,
     TotalsConfig,
     ShellyConfig,
     ModbusServerConfig,
@@ -25,4 +26,5 @@ __all__ = [
     "HTTPServerConfig",
     "MDNSServerConfig",
     "ServersConfig",
+    "PhaseConfig",
 ]
