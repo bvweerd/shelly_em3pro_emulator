@@ -1,0 +1,19 @@
+[tool.bumpversion]
+current_version = "2.0.2"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+commit = true
+tag = true
+tag_name = "v{new_version}"
+commit_args = "--no-verify"
+message = "chore: bump version to {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "src/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "addon/config.yaml"
+search = 'version: "{current_version}"'
+replace = 'version: "{new_version}"'

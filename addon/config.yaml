@@ -1,6 +1,6 @@
 name: "Shelly Pro 3EM Emulator"
 description: "Emulates a Shelly Pro 3EM for Marstek home batteries (Venus, Jupiter, B2500)"
-version: "0.0.0"
+version: "2.0.2"
 slug: "shelly_em3pro_emulator"
 url: "https://github.com/bvweerd/shelly_em3pro_emulator"
 arch: [amd64, aarch64]
