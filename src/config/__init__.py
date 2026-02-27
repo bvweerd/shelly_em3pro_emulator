@@ -11,6 +11,7 @@ from .settings import (
     HTTPServerConfig,
     MDNSServerConfig,
     ServersConfig,
+    SpoofConfig,
 )
 from .logger import setup_logging, get_logger
 
@@ -27,4 +28,5 @@ __all__ = [
     "MDNSServerConfig",
     "ServersConfig",
     "PhaseConfig",
+    "SpoofConfig",
 ]

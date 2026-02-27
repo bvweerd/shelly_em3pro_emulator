@@ -30,6 +30,8 @@ options:
   phase_c_current: ""
   energy_delivered: ""
   energy_returned: ""
+  spoof_enable_sensor: ""
+  spoof_power_entity: ""
 schema:
   log_level: "list(debug|info|warning|error)"
   poll_interval: int
@@ -51,3 +53,5 @@ schema:
   phase_c_current: str?
   energy_delivered: str?
   energy_returned: str?
+  spoof_enable_sensor: str?
+  spoof_power_entity: str?

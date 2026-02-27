@@ -1,7 +1,6 @@
 """Home Assistant REST API client."""
 
 from dataclasses import dataclass
-from typing import Optional
 
 import httpx
 
@@ -23,10 +22,10 @@ UNIT_CONVERSIONS = {
 class EntityValue:
     """Value with unit information."""
 
-    value: Optional[float]
-    unit: Optional[str]
-    converted_value: Optional[float]  # Value in base units (W, Wh)
-    last_updated: Optional[str] = None  # ISO timestamp from Home Assistant
+    value: float | None
+    unit: str | None
+    converted_value: float | None  # Value in base units (W, Wh)
+    last_updated: str | None = None  # ISO timestamp from Home Assistant
 
 
 class HomeAssistantClient:
@@ -68,9 +67,9 @@ class HomeAssistantClient:
         )
 
         self._connected = False
-        self._last_error: Optional[str] = None
+        self._last_error: str | None = None
 
-    def get_value(self, entity_id: str, auto_convert: bool = True) -> Optional[float]:
+    def get_value(self, entity_id: str, auto_convert: bool = True) -> float | None:
         """Get the current value of a Home Assistant entity.
 
         Automatically converts kW to W and kWh to Wh based on unit_of_measurement.
@@ -185,6 +184,51 @@ class HomeAssistantClient:
             )
             return EntityValue(None, None, None)
 
+    def get_bool_state(self, entity_id: str) -> bool | None:
+        """Get the boolean state of a binary_sensor entity.
+
+        Args:
+            entity_id: The entity ID (e.g., binary_sensor.spoof_active).
+
+        Returns:
+            True if state is "on", False if "off", None if unavailable/error.
+        """
+        if not entity_id:
+            return None
+
+        try:
+            url = f"{self._base_url}/api/states/{entity_id}"
+            response = self._client.get(url)
+            response.raise_for_status()
+
+            data = response.json()
+            state = data.get("state")
+
+            if state in ("unavailable", "unknown", None):
+                logger.debug("Entity unavailable", entity_id=entity_id, state=state)
+                return None
+
+            self._connected = True
+            self._last_error = None
+            return bool(state == "on")
+
+        except httpx.HTTPStatusError as e:
+            self._last_error = f"HTTP error: {e.response.status_code}"
+            logger.error(
+                "HTTP error fetching entity",
+                entity_id=entity_id,
+                status_code=e.response.status_code,
+            )
+            return None
+
+        except httpx.RequestError as e:
+            self._connected = False
+            self._last_error = f"Request error: {e}"
+            logger.error(
+                "Request error fetching entity", entity_id=entity_id, error=str(e)
+            )
+            return None
+
     def is_connected(self) -> bool:
         """Check if connected to Home Assistant.
 
@@ -222,6 +266,6 @@ class HomeAssistantClient:
         self._client.close()
 
     @property
-    def last_error(self) -> Optional[str]:
+    def last_error(self) -> str | None:
         """Get the last error message."""
         return self._last_error

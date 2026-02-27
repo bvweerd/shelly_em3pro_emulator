@@ -176,6 +176,14 @@ class DataManager:
             timeout=ha_config.timeout,
         )
 
+        # Spoof state
+        self._spoof_active: bool = False
+        self._spoof_last_tick: float = 0.0
+        self._spoof_energy_baseline: float = 0.0
+        self._spoof_energy_returned_baseline: float = 0.0
+        self._spoof_accumulated_energy: float = 0.0
+        self._spoof_accumulated_returned: float = 0.0
+
     def start(self) -> None:
         """Start the background polling thread."""
         if self._poll_thread is not None:
@@ -323,6 +331,12 @@ class DataManager:
         self._ha_client.close()
         logger.info("Data manager stopped")
 
+    @property
+    def _spoof_configured(self) -> bool:
+        """Return True if spoof entities are configured."""
+        cfg = self._settings.spoof
+        return bool(cfg.enable_sensor and cfg.power_entity)
+
     def get_data(self) -> MeterData:
         """Get the current meter data.
 
@@ -411,7 +425,12 @@ class DataManager:
                 "No power entities found for timestamp check, will poll every cycle."
             )
 
-        if not any_changed and self._data.is_valid and has_power_entities:
+        if (
+            not any_changed
+            and self._data.is_valid
+            and has_power_entities
+            and not self._spoof_configured
+        ):
             # No sensor changed but we can still reach HA — refresh timestamp
             # to prevent the cache from being marked stale after DATA_STALE_TIMEOUT
             with self._lock:
@@ -449,6 +468,10 @@ class DataManager:
 
         new_data.is_valid = self._ha_client.is_connected()
 
+        # Apply spoof overrides if configured
+        if self._spoof_configured:
+            new_data = self._apply_spoof(new_data)
+
         # Update cached data
         with self._lock:
             self._data = new_data
@@ -461,6 +484,94 @@ class DataManager:
             phase_c_power=new_data.phase_c.active_power,
             valid=new_data.is_valid,
         )
+
+    def _apply_spoof(self, data: MeterData) -> MeterData:
+        """Override meter data with spoofed values when spoofing is active.
+
+        Reads the enable_sensor (binary_sensor) and power_entity (input_number)
+        from Home Assistant every poll cycle.  When active, the real DSMR power
+        readings are replaced by the spoofed value distributed equally across
+        the three phases.  Energy totals continue to accumulate based on the
+        spoofed power so that connected integrations see consistent data.
+
+        Args:
+            data: Freshly-fetched MeterData with real DSMR values.
+
+        Returns:
+            MeterData with spoofed power and accumulated energy applied when
+            spoofing is active, or the original data unchanged when inactive.
+        """
+        cfg = self._settings.spoof
+        now = time.time()
+
+        spoof_active = self._ha_client.get_bool_state(cfg.enable_sensor)
+        if spoof_active is None:
+            spoof_active = False
+
+        # --- state-transition bookkeeping ---
+        if spoof_active and not self._spoof_active:
+            # Spoofing just switched on — capture energy baselines
+            self._spoof_last_tick = now
+            self._spoof_energy_baseline = data.total_energy
+            self._spoof_energy_returned_baseline = data.total_energy_returned
+            self._spoof_accumulated_energy = 0.0
+            self._spoof_accumulated_returned = 0.0
+            logger.info(
+                "Power spoofing activated",
+                energy_baseline_wh=data.total_energy,
+                energy_returned_baseline_wh=data.total_energy_returned,
+            )
+
+        if not spoof_active and self._spoof_active:
+            logger.info("Power spoofing deactivated")
+
+        self._spoof_active = spoof_active
+
+        if not spoof_active:
+            return data
+
+        # --- read spoofed power value ---
+        spoof_power = self._ha_client.get_value(cfg.power_entity)
+        if spoof_power is None:
+            spoof_power = 0.0
+
+        # --- accumulate energy since last tick ---
+        dt_h = (now - self._spoof_last_tick) / 3600.0
+        if spoof_power >= 0:
+            self._spoof_accumulated_energy += spoof_power * dt_h
+        else:
+            self._spoof_accumulated_returned += abs(spoof_power) * dt_h
+        self._spoof_last_tick = now
+
+        # --- override phase power / current ---
+        per_phase = spoof_power / 3.0
+        for phase in [data.phase_a, data.phase_b, data.phase_c]:
+            if per_phase >= 0:
+                phase.power = per_phase
+                phase.power_returned = 0.0
+            else:
+                phase.power = 0.0
+                phase.power_returned = abs(per_phase)
+            # Derive current at unity power factor (approximate)
+            phase.current = abs(per_phase) / phase.voltage if phase.voltage > 0 else 0.0
+            phase.apparent_power = 0.0  # reset so calculate_derived recomputes
+            phase.calculate_derived()
+
+        # --- override energy totals ---
+        data.total_energy = self._spoof_energy_baseline + self._spoof_accumulated_energy
+        data.total_energy_returned = (
+            self._spoof_energy_returned_baseline + self._spoof_accumulated_returned
+        )
+
+        logger.debug(
+            "Spoof applied",
+            spoof_power_w=spoof_power,
+            per_phase_w=per_phase,
+            accumulated_energy_wh=self._spoof_accumulated_energy,
+            accumulated_returned_wh=self._spoof_accumulated_returned,
+        )
+
+        return data
 
     def _fetch_phase_data(self, config: "PhaseConfig", phase_data: PhaseData) -> bool:
         """Fetch data for a single phase.

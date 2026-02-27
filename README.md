@@ -14,6 +14,7 @@ A Docker container with a Python application that emulates a Shelly Pro 3EM ener
 - **Shelly Pro 3EM compliant** - Implements all EM and EMData registers and Gen2 RPC API
 - **mDNS discovery** - Automatically discoverable by Home Assistant and other Shelly-compatible systems
 - **Real-time updates** - WebSocket push notifications for instant state changes
+- **Power spoofing** - Override reported consumption/production with a fixed value from HA, controlled by a binary sensor toggle
 - **Docker ready** - Easy deployment via Docker container
 - **Home Assistant Add-on** - Install directly from the HA UI, no manual token or config needed
 
@@ -164,6 +165,67 @@ dsmr:
     phase_c:
       # ... same for phase C
 ```
+
+### Power Spoofing
+
+The emulator can report a fixed power value instead of reading from your real DSMR sensors. This is useful to test battery charging/discharging behaviour, simulate solar production, or override the value seen by the Marstek controller.
+
+Spoofing is controlled entirely from Home Assistant:
+
+| Entity | Type | Purpose |
+|--------|------|---------|
+| `binary_sensor.*` | binary sensor | Toggle spoofing on/off (state `on` = active) |
+| `input_number.*` | number | Power value in **Watt** (positive = consumption, negative = production/export) |
+
+When spoofing is active:
+- All three phases are loaded equally (e.g. `−1000 W` → `−333 W` per phase)
+- Energy totals continue to accumulate based on the spoofed power so that integrations (Marstek, HA energy dashboard) see consistent data
+- When spoofing is turned off, energy counters revert to the real values from the meter
+
+#### YAML configuration
+
+```yaml
+spoof:
+  enable_sensor: "binary_sensor.marstek_spoof_active"
+  power_entity: "input_number.marstek_spoof_power_w"
+```
+
+#### Home Assistant Add-on
+
+Set `spoof_enable_sensor` and `spoof_power_entity` in the add-on options.
+
+#### Example: simulate 1 kW solar export
+
+In Home Assistant, create:
+
+```yaml
+# configuration.yaml (or via UI Helpers)
+input_number:
+  marstek_spoof_power_w:
+    name: "Marstek spoof power (W)"
+    min: -10000
+    max: 10000
+    step: 10
+    unit_of_measurement: "W"
+
+input_boolean:
+  marstek_spoof_active:
+    name: "Marstek spoof active"
+```
+
+Then in `config.yaml`:
+
+```yaml
+spoof:
+  enable_sensor: "input_boolean.marstek_spoof_active"
+  power_entity: "input_number.marstek_spoof_power_w"
+```
+
+Set `input_number.marstek_spoof_power_w` to `-1000` and turn on `input_boolean.marstek_spoof_active` — the emulator will report −1000 W (solar export) to the Marstek battery.
+
+> **Note:** `input_boolean` works just as well as `binary_sensor`. Any HA entity whose state is `"on"` activates spoofing.
+
+---
 
 ## Protocols
 

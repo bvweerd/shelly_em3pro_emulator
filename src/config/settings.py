@@ -196,6 +196,21 @@ class DSMRConfig:
 
 
 @dataclass
+class SpoofConfig:
+    """Power spoofing configuration.
+
+    When enabled, the emulator reports a fixed power value instead of reading
+    from real DSMR sensors.  Energy totals continue to accumulate as if the
+    spoofed power were real, so integrations (e.g. Marstek) see consistent data.
+    """
+
+    enable_sensor: str = ""  # binary_sensor entity_id in HA; "on" = spoofing active
+    power_entity: str = (
+        ""  # input_number entity_id in HA (W; + = consumption, - = production)
+    )
+
+
+@dataclass
 class LoggingConfig:
     """Logging configuration."""
 
@@ -211,6 +226,7 @@ class Settings:
     servers: ServersConfig = field(default_factory=ServersConfig)
     homeassistant: HomeAssistantConfig = field(default_factory=HomeAssistantConfig)
     dsmr: DSMRConfig = field(default_factory=DSMRConfig)
+    spoof: SpoofConfig = field(default_factory=SpoofConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 
@@ -266,6 +282,15 @@ def load_addon_config() -> "Settings":
         settings.dsmr.totals = TotalsConfig(
             energy_delivered=energy_delivered,
             energy_returned=energy_returned,
+        )
+
+    # Spoof config
+    spoof_enable_sensor = options.get("spoof_enable_sensor", "")
+    spoof_power_entity = options.get("spoof_power_entity", "")
+    if spoof_enable_sensor or spoof_power_entity:
+        settings.spoof = SpoofConfig(
+            enable_sensor=spoof_enable_sensor,
+            power_entity=spoof_power_entity,
         )
 
     return settings
@@ -397,6 +422,14 @@ def _parse_config(data: dict) -> Settings:
                     "energy_returned_tariff_2", ""
                 ),
             ),
+        )
+
+    # Parse spoof config
+    if "spoof" in data:
+        spoof_data = data["spoof"]
+        settings.spoof = SpoofConfig(
+            enable_sensor=spoof_data.get("enable_sensor", ""),
+            power_entity=spoof_data.get("power_entity", ""),
         )
 
     # Parse logging config
