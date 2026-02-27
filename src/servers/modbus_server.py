@@ -1,7 +1,6 @@
 """Modbus TCP server for Shelly Pro 3EM emulation."""
 
 import threading
-from typing import Optional
 
 from pymodbus.datastore import (
     ModbusServerContext,
@@ -41,7 +40,7 @@ class CustomModbusDeviceContext(ModbusDeviceContext):
         self._register_map = register_map
         self._data_manager = data_manager
 
-    def getValues(self, fc_as_hex: int, address: int, count: int = 1):
+    def getValues(self, fc_as_hex: int, address: int, count: int = 1) -> list[int]:
         """Get register values.
 
         Args:
@@ -76,7 +75,7 @@ class CustomModbusDeviceContext(ModbusDeviceContext):
 
         return [0] * count
 
-    def setValues(self, fc_as_hex: int, address: int, values: list):
+    def setValues(self, fc_as_hex: int, address: int, values: list[int]) -> None:
         """Set register values (not implemented - read-only device)."""
         logger.warning(
             "Write attempt to read-only register",
@@ -137,7 +136,7 @@ class ModbusServer:
         self._unit_id = unit_id
 
         self._register_map = RegisterMap(device)
-        self._server_thread: Optional[threading.Thread] = None
+        self._server_thread: threading.Thread | None = None
         self._running = False
 
     def start(self) -> None:

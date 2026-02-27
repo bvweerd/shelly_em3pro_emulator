@@ -3,6 +3,7 @@
 from .settings import (
     Settings,
     load_config,
+    PhaseConfig,
     TotalsConfig,
     ShellyConfig,
     ModbusServerConfig,
@@ -10,6 +11,7 @@ from .settings import (
     HTTPServerConfig,
     MDNSServerConfig,
     ServersConfig,
+    SpoofConfig,
 )
 from .logger import setup_logging, get_logger
 
@@ -25,4 +27,6 @@ __all__ = [
     "HTTPServerConfig",
     "MDNSServerConfig",
     "ServersConfig",
+    "PhaseConfig",
+    "SpoofConfig",
 ]

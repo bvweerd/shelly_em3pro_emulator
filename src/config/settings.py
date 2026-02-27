@@ -3,7 +3,6 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 import os
 
 import yaml
@@ -106,20 +105,20 @@ class DSMRConfig:
     auto_discover: bool = True
 
     # Manual configuration (used when auto_discover is False)
-    single_phase: Optional[dict] = None
-    three_phase: Optional[dict] = None
+    single_phase: dict | None = None
+    three_phase: dict | None = None
     totals: TotalsConfig = field(default_factory=TotalsConfig)
 
     # Discovered configuration (populated at runtime)
-    _discovered_three_phase: Optional[dict] = field(default=None, repr=False)
-    _discovered_single_phase: Optional[dict] = field(default=None, repr=False)
-    _discovered_totals: Optional[TotalsConfig] = field(default=None, repr=False)
+    _discovered_three_phase: dict | None = field(default=None, repr=False)
+    _discovered_single_phase: dict | None = field(default=None, repr=False)
+    _discovered_totals: TotalsConfig | None = field(default=None, repr=False)
     _is_discovered_three_phase: bool = field(default=False, repr=False)
 
     def set_discovered_entities(
         self,
-        single_phase: Optional[dict],
-        three_phase: Optional[dict],
+        single_phase: dict | None,
+        three_phase: dict | None,
         totals: TotalsConfig,
         is_three_phase: bool,
     ) -> None:
@@ -155,7 +154,7 @@ class DSMRConfig:
         """Get single phase power entity."""
         single = self._get_active_single_phase()
         if single:
-            return single.get("power", "")
+            return str(single.get("power", ""))
         return ""
 
     def get_totals(self) -> TotalsConfig:
@@ -171,13 +170,13 @@ class DSMRConfig:
 
         return self.three_phase is not None and len(self.three_phase) > 0
 
-    def _get_active_three_phase(self) -> Optional[dict]:
+    def _get_active_three_phase(self) -> dict | None:
         """Get the active three-phase configuration."""
         if self.auto_discover and self._discovered_three_phase:
             return self._discovered_three_phase
         return self.three_phase
 
-    def _get_active_single_phase(self) -> Optional[dict]:
+    def _get_active_single_phase(self) -> dict | None:
         """Get the active single-phase configuration."""
         if self.auto_discover and self._discovered_single_phase:
             return self._discovered_single_phase
@@ -197,6 +196,21 @@ class DSMRConfig:
 
 
 @dataclass
+class SpoofConfig:
+    """Power spoofing configuration.
+
+    When enabled, the emulator reports a fixed power value instead of reading
+    from real DSMR sensors.  Energy totals continue to accumulate as if the
+    spoofed power were real, so integrations (e.g. Marstek) see consistent data.
+    """
+
+    enable_sensor: str = ""  # binary_sensor entity_id in HA; "on" = spoofing active
+    power_entity: str = (
+        ""  # input_number entity_id in HA (W; + = consumption, - = production)
+    )
+
+
+@dataclass
 class LoggingConfig:
     """Logging configuration."""
 
@@ -212,6 +226,7 @@ class Settings:
     servers: ServersConfig = field(default_factory=ServersConfig)
     homeassistant: HomeAssistantConfig = field(default_factory=HomeAssistantConfig)
     dsmr: DSMRConfig = field(default_factory=DSMRConfig)
+    spoof: SpoofConfig = field(default_factory=SpoofConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 
@@ -269,10 +284,19 @@ def load_addon_config() -> "Settings":
             energy_returned=energy_returned,
         )
 
+    # Spoof config
+    spoof_enable_sensor = options.get("spoof_enable_sensor", "")
+    spoof_power_entity = options.get("spoof_power_entity", "")
+    if spoof_enable_sensor or spoof_power_entity:
+        settings.spoof = SpoofConfig(
+            enable_sensor=spoof_enable_sensor,
+            power_entity=spoof_power_entity,
+        )
+
     return settings
 
 
-def load_config(config_path: Optional[str] = None) -> Settings:
+def load_config(config_path: str | None = None) -> Settings:
     """Load configuration from YAML file.
 
     Args:
@@ -306,7 +330,7 @@ def load_config(config_path: Optional[str] = None) -> Settings:
         # Return defaults
         return Settings()
 
-    with open(path, "r") as f:
+    with open(path) as f:
         data = yaml.safe_load(f) or {}
 
     return _parse_config(data)
@@ -398,6 +422,14 @@ def _parse_config(data: dict) -> Settings:
                     "energy_returned_tariff_2", ""
                 ),
             ),
+        )
+
+    # Parse spoof config
+    if "spoof" in data:
+        spoof_data = data["spoof"]
+        settings.spoof = SpoofConfig(
+            enable_sensor=spoof_data.get("enable_sensor", ""),
+            power_entity=spoof_data.get("power_entity", ""),
         )
 
     # Parse logging config
