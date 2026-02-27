@@ -57,14 +57,6 @@ jobs:
           cat src/__init__.py
           grep "^version:" addon/config.yaml
 
-      - name: Commit version update
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add addon/config.yaml src/__init__.py
-          git diff --staged --quiet || git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
-          git push origin HEAD:main
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -148,7 +140,7 @@ jobs:
             ```
 
             ## Home Assistant Add-on
-            Voeg `https://github.com/bvweerd/shelly_em3pro_emulator` toe als custom repository.
+            Add `https://github.com/bvweerd/shelly_em3pro_emulator` as a custom repository.
 
             ## Changes
             ${{ steps.changelog.outputs.changelog }}
