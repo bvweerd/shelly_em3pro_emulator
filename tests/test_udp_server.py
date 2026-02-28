@@ -197,18 +197,20 @@ class TestUDPServer:
         assert response is None
 
     def test_process_request_invalid_params(self, udp_server):
-        """Test _process_request with invalid params."""
+        """Test _process_request with non-integer params.id still returns a response."""
         request = {"method": "EM.GetStatus", "id": 5, "params": {"id": "invalid"}}
         response = udp_server._process_request(request)
 
-        assert response is None
+        assert response is not None
+        assert "result" in response
 
     def test_process_request_no_params(self, udp_server):
-        """Test _process_request with no params."""
+        """Test _process_request without params still returns a response."""
         request = {"method": "EM.GetStatus", "id": 6}
         response = udp_server._process_request(request)
 
-        assert response is None
+        assert response is not None
+        assert "result" in response
 
     def test_handle_request_valid(self, udp_server):
         """Test _handle_request with valid request."""
@@ -271,7 +273,7 @@ class TestUDPServerListenLoop:
         # Run one iteration then stop
         def stop_after_iteration(*args):
             server._running = False
-            raise socket.timeout()
+            raise TimeoutError()
 
         mock_socket.recvfrom.side_effect = stop_after_iteration
 
@@ -315,7 +317,7 @@ class TestUDPServerListenLoop:
                 return (json.dumps(request).encode(), ("127.0.0.1", 12345))
             else:
                 server._running = False
-                raise socket.timeout()
+                raise TimeoutError()
 
         mock_socket.recvfrom.side_effect = recvfrom_side_effect
 

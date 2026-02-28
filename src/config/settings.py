@@ -254,6 +254,7 @@ def load_addon_config() -> "Settings":
     settings.servers.http.enabled = bool(options.get("http_enabled", True))
     settings.servers.http.port = int(options.get("http_port", 8812))
     settings.servers.mdns.enabled = bool(options.get("mdns_enabled", True))
+    settings.servers.mdns.host = str(options.get("mdns_host", "") or "")
 
     settings.dsmr.auto_discover = bool(options.get("auto_discover", True))
 
