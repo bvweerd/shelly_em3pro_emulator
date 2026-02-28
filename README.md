@@ -12,7 +12,7 @@ A Docker container with a Python application that emulates a Shelly Pro 3EM ener
 - **Multi-protocol support** - Modbus TCP (port 502), UDP JSON-RPC (port 1010/2220), HTTP API, and WebSocket
 - **3-phase support** - Full support for three-phase power measurements
 - **Shelly Pro 3EM compliant** - Implements all EM and EMData registers and Gen2 RPC API
-- **mDNS discovery** - Automatically discoverable by Home Assistant and other Shelly-compatible systems
+- **mDNS discovery** - Announces itself on the local network so Marstek can find it automatically
 - **Real-time updates** - WebSocket push notifications for instant state changes
 - **Power spoofing** - Override reported consumption/production with a fixed value from HA, controlled by a binary sensor toggle
 - **Docker ready** - Easy deployment via Docker container
@@ -26,7 +26,8 @@ A Docker container with a Python application that emulates a Shelly Pro 3EM ener
 2. Add `https://github.com/bvweerd/shelly_em3pro_emulator`
 3. Find **Shelly Pro 3EM Emulator** in the add-on store and install it
 4. Configure via the add-on UI (log level, poll interval, auto-discover)
-5. Start the add-on
+5. **Important:** Set `mdns_host` to your HA machine's LAN IP (e.g. `192.168.1.x`) so Marstek can find the emulator
+6. Start the add-on
 
 Authentication and the Home Assistant URL are configured automatically via the Supervisor — no long-lived token required.
 
@@ -273,8 +274,10 @@ After starting the emulator:
 1. Open the Marstek app
 2. Go to settings > Energy meter
 3. Select "Shelly Pro 3EM"
-4. Enter the IP address of the emulator
+4. The app will scan for devices via mDNS — if found, the emulator appears automatically. If not, enter the IP address of the emulator manually (= the IP of the machine running the emulator)
 5. Set the battery to "Self-Adaptation" mode
+
+> **Tip:** If the Marstek app cannot find the emulator automatically, set `mdns_host` in the configuration to your server's LAN IP address. See [Marstek does not find emulator](#marstek-does-not-find-emulator) for details.
 
 ### Ports per firmware version
 
@@ -288,16 +291,14 @@ After starting the emulator:
 
 > **⚠️ Warning:** The Home Assistant Shelly integration for this emulator is intended for **testing and validation purposes only**. Since the emulator reads data from Home Assistant's DSMR integration and exposes it as a Shelly device, adding the emulator back to Home Assistant creates a data loop (the same data circulating). For production use, connect the emulator directly to your Marstek battery or other energy management system.
 
-The Shelly Pro 3EM Emulator utilizes mDNS (Multicast DNS) to announce its presence on your local network. Home Assistant can automatically discover the emulator as a Shelly device.
+> **⚠️ Auto-discovery does not work:** Due to a bug in the HA Shelly integration ([`async_step_zeroconf` always uses port 80](https://github.com/home-assistant/core/blob/dev/homeassistant/components/shelly/config_flow.py) regardless of what the mDNS record advertises), automatic discovery of the emulator will silently fail. **You must add the device manually.**
 
-To verify the integration (for testing):
+To add the emulator to Home Assistant (for testing):
 
-1.  **Ensure the emulator is running:** Follow the "Quick Start" instructions to start the emulator using Docker or directly with Python.
-2.  **Check Home Assistant for new devices:**
-    *   Navigate to **Settings** -> **Devices & Services** in your Home Assistant instance.
-    *   Look for a new integration card for "Shelly" or a new device listed under an existing Shelly integration. The emulator should appear with the device name configured in `config.yaml` (e.g., "Shelly Pro 3EM Emulator").
-    *   If Home Assistant does not automatically discover it, ensure both Home Assistant and the emulator are on the same local network and that mDNS traffic is not blocked by your router or firewall.
-3.  **Inspect the discovered device:** Once discovered, click on the Shelly emulator device to view its entities (e.g., power, voltage, current, energy totals). These entities should reflect the data being provided by the DSMR integration.
+1. Go to **Settings** → **Devices & Services** → **Add Integration**
+2. Search for **Shelly**
+3. Enter the emulator's **IP address** and **HTTP port** (default: `80` for Docker standalone, `8812` for the add-on)
+4. Click **Submit** — the emulator should be found and added as "Shelly Pro 3EM Emulator"
 
 ## Running Tests
 
@@ -502,14 +503,31 @@ The auto-discovery supports multiple naming conventions:
 
 ### Emulator does not start
 
-- Check if ports 502, 1010, 2220 are free
+- Check if ports 502, 1010, 2220 are free (and port 8812 for the HTTP server when using the add-on)
 - With Docker: use `network_mode: host` for UDP broadcast support
 
 ### Marstek does not find emulator
 
+The Marstek battery scans for Shelly devices using mDNS (`_shelly._tcp.local.`) and/or UDP broadcast on ports 1010/2220. The most common causes of discovery failure:
+
+**Wrong IP in mDNS advertisement**
+
+The emulator auto-detects its own IP for mDNS. If the machine has multiple network interfaces (VPN, Docker bridges, etc.), the wrong IP may be selected. Fix this by setting `mdns_host` explicitly to your LAN IP:
+
+- **Docker**: add `mdns_host: "192.168.1.x"` to the `servers.mdns` section in `config.yaml`
+- **Add-on**: set the `mdns_host` option in the add-on configuration UI
+
+To find the correct IP: check your router's client list, or run `ip -4 addr show` on the host and look for your LAN interface (typically `eth0` or `eno1`).
+
+**Docker bridge networking**
+
+UDP broadcasts from the Marstek won't reach the emulator container unless Docker is using host networking. The provided `docker-compose.yml` already uses `network_mode: host`. If you use a custom compose file, ensure this is set.
+
+**Other checks**
+
 - Make sure both devices are on the same subnet
-- Check firewall rules for UDP ports
-- Try disconnecting Bluetooth during setup
+- Check firewall rules for UDP ports 1010 and 2220
+- Try disconnecting Bluetooth on the Marstek during setup (Bluetooth can interfere with WiFi discovery)
 
 ### No data from Home Assistant
 
