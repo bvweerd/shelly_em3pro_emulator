@@ -1,9 +1,11 @@
 """Configuration settings module."""
 
+import hashlib
 import json
+import os
+import socket
 from dataclasses import dataclass, field
 from pathlib import Path
-import os
 
 import yaml
 
@@ -248,6 +250,24 @@ def load_addon_config() -> "Settings":
     settings.homeassistant.token = os.environ["SUPERVISOR_TOKEN"]
     settings.homeassistant.poll_interval = float(options.get("poll_interval", 1))
     settings.logging.level = str(options.get("log_level", "info")).upper()
+
+    # Device identity
+    device_name = str(options.get("device_name", "") or "").strip()
+    if device_name:
+        settings.shelly.device_name = device_name
+
+    mac_address = str(options.get("mac_address", "") or "").strip()
+    if mac_address:
+        settings.shelly.mac_address = mac_address
+    else:
+        # Generate a stable unique MAC from the hostname so every installation
+        # gets a different device ID without requiring manual configuration.
+        seed = socket.gethostname()
+        digest = hashlib.sha256(seed.encode()).digest()
+        # Set locally-administered unicast bit (bit 1 of first byte)
+        mac_bytes = bytearray(digest[:6])
+        mac_bytes[0] = (mac_bytes[0] & 0xFE) | 0x02
+        settings.shelly.mac_address = ":".join(f"{b:02X}" for b in mac_bytes)
 
     settings.servers.modbus.enabled = bool(options.get("modbus_enabled", True))
     settings.servers.udp.enabled = bool(options.get("udp_enabled", True))

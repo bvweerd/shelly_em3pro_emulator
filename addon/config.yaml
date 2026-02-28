@@ -1,6 +1,6 @@
 name: "Shelly Pro 3EM Emulator"
 description: "Emulates a Shelly Pro 3EM for Marstek home batteries (Venus, Jupiter, B2500)"
-version: "2.0.3"
+version: "2.0.4"
 slug: "shelly_em3pro_emulator"
 url: "https://github.com/bvweerd/shelly_em3pro_emulator"
 arch: [amd64, aarch64]
@@ -12,6 +12,8 @@ image: "ghcr.io/bvweerd/shelly_em3pro_emulator-addon"
 options:
   log_level: "info"
   poll_interval: 1
+  device_name: "Shelly Pro 3EM Emulator"
+  mac_address: ""
   auto_discover: true
   modbus_enabled: true
   udp_enabled: true
@@ -36,6 +38,8 @@ options:
 schema:
   log_level: "list(debug|info|warning|error)"
   poll_interval: int
+  device_name: str?
+  mac_address: str?
   auto_discover: bool
   modbus_enabled: bool
   udp_enabled: bool
