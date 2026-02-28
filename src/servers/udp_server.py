@@ -180,11 +180,6 @@ class UDPServer:
         """
         method = request.get("method", "")
         request_id = request.get("id", 0)
-        params = request.get("params", {})
-
-        # Check if this is a valid request for our device
-        if not isinstance(params.get("id"), int):
-            return None
 
         if method == "EM.GetStatus":
             return self._create_em_response(request_id)

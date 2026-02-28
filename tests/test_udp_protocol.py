@@ -190,7 +190,7 @@ class TestUDPProtocol:
         self,
         udp_server: UDPServer,
     ):
-        """Test that requests without params.id are ignored."""
+        """Test that requests without params.id are still handled (not filtered out)."""
         request = {
             "id": 1,
             "method": "EM.GetStatus",
@@ -198,8 +198,9 @@ class TestUDPProtocol:
         }
         response = udp_server._process_request(request)
 
-        # Requests without params.id should return None
-        assert response is None
+        # Requests without params.id should still get a response
+        assert response is not None
+        assert "result" in response
 
     def test_handle_request_sends_response(
         self,

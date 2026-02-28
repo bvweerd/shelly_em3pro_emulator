@@ -49,8 +49,13 @@ class MDNSServer(threading.Thread):
         # Use configured host if provided, otherwise auto-detect
         if self.host and self.host not in ("", "0.0.0.0"):
             ip_address = self.host
+            logger.info(f"mDNS: Using configured IP address {ip_address}")
         else:
             ip_address = self.get_local_ip()
+            logger.info(
+                f"mDNS: Auto-detected IP address {ip_address} "
+                "(set mdns_host in addon options to override if this is wrong)"
+            )
 
         # Create Zeroconf with specific interface to avoid VPN/virtual interface issues
         try:

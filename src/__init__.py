@@ -1,3 +1,3 @@
 """Shelly Pro 3EM Emulator."""
 
-__version__ = "2.0.2"
+__version__ = "2.0.4"
