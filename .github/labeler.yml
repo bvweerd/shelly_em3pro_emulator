@@ -1,11 +1,11 @@
 bug:
-  - '(?i)(bug|fout|error|exception|traceback|crash|not working|werkt niet|kapot|broken|failing|does not work|stopped working)'
+  - '(?i)(bug|error|exception|traceback|crash|not working|broken|failing|does not work|stopped working)'
 
 enhancement:
-  - '(?i)(feature|enhancement|feature request|verbeter|toevoeg|add support|support for|request|wish|suggestie|suggestion|could you|can you add)'
+  - '(?i)(feature|enhancement|feature request|add support|support for|request|wish|suggestion|could you|can you add)'
 
 question:
-  - '(?i)(question|vraag|how to|hoe|what is|help|uitleg|explain|why|confused|understand)'
+  - '(?i)(question|how to|what is|help|explain|why|confused|understand)'
 
 documentation:
   - '(?i)(docs|documentation|readme|example|guide|how to configure)'
@@ -14,13 +14,13 @@ docker:
   - '(?i)(docker|container|image|pull|compose|ghcr|registry|dockerfile)'
 
 "home assistant":
-  - '(?i)(home assistant|hass|addon|add-on|homeassistant)'
+  - '(?i)(home assistant|addon|add-on|homeassistant)'
 
 configuration:
-  - '(?i)(config|configuratie|setup|install|options|settings|configure|parameter)'
+  - '(?i)(config|setup|install|options|settings|configure|parameter)'
 
 performance:
-  - '(?i)(slow|traag|performance|memory|cpu|hang|freeze|timeout|lagging)'
+  - '(?i)(slow|performance|memory|cpu|hang|freeze|timeout|lagging)'
 
 dependencies:
   - '(?i)(dependency|requirement|package|pip|version incompatible)'
