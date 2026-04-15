@@ -82,7 +82,7 @@ jobs:
             type=raw,value=latest
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./docker/Dockerfile
@@ -98,7 +98,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push add-on Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./addon/Dockerfile
