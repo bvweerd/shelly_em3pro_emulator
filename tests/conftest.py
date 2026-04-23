@@ -3,7 +3,7 @@
 import socket
 import struct
 import time
-from typing import Generator, Optional
+from collections.abc import Generator
 from unittest.mock import MagicMock
 
 import pytest
@@ -124,7 +124,7 @@ class ModbusTestClient:
         self.port = port
         self.unit_id = unit_id
         self.timeout = timeout
-        self.sock: Optional[socket.socket] = None
+        self.sock: socket.socket | None = None
         self.transaction_id = 0
 
     def connect(self) -> bool:

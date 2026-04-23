@@ -2,14 +2,13 @@
 
 import logging
 import sys
-from typing import Optional
 
 import structlog
 
 _configured = False
 
 
-def setup_logging(level: str = "INFO", log_format: Optional[str] = None) -> None:
+def setup_logging(level: str = "INFO", log_format: str | None = None) -> None:
     """Set up logging configuration.
 
     Args:

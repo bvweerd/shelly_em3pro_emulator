@@ -20,7 +20,6 @@ import struct
 import sys
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class TestResult(Enum):
@@ -38,9 +37,9 @@ class RegisterSpec:
     size: int  # Number of 16-bit registers
     name: str
     data_type: str  # float, uint32, uint16, boolean, string
-    unit: Optional[str] = None
-    min_value: Optional[float] = None
-    max_value: Optional[float] = None
+    unit: str | None = None
+    min_value: float | None = None
+    max_value: float | None = None
     description: str = ""
 
 
@@ -196,7 +195,7 @@ class ModbusClient:
         self.port = port
         self.unit_id = unit_id
         self.timeout = timeout
-        self.sock: Optional[socket.socket] = None
+        self.sock: socket.socket | None = None
         self.transaction_id = 0
 
     def connect(self) -> bool:
@@ -214,7 +213,7 @@ class ModbusClient:
             self.sock.close()
             self.sock = None
 
-    def read_input_registers(self, address: int, count: int) -> Optional[list]:
+    def read_input_registers(self, address: int, count: int) -> list | None:
         """Read input registers (function code 4)."""
         if not self.sock:
             return None
@@ -265,7 +264,7 @@ class UDPClient:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.settimeout(timeout)
 
-    def send_request(self, request: dict) -> Optional[dict]:
+    def send_request(self, request: dict) -> dict | None:
         try:
             data = json.dumps(request).encode()
             self.sock.sendto(data, (self.host, self.port))
