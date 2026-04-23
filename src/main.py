@@ -4,7 +4,6 @@ import argparse
 import signal
 import sys
 import time
-from typing import Optional
 
 from .config import load_config, setup_logging, get_logger
 from .emulator import DataManager, ShellyDevice
@@ -16,7 +15,7 @@ logger = get_logger(__name__)
 class ShellyEmulator:
     """Main emulator class that coordinates all components."""
 
-    def __init__(self, config_path: Optional[str] = None, verbose: bool = False):
+    def __init__(self, config_path: str | None = None, verbose: bool = False):
         """Initialize the emulator.
 
         Args:
@@ -42,10 +41,10 @@ class ShellyEmulator:
         self._data_manager = DataManager(self._settings)
 
         # Create servers
-        self._modbus_server: Optional[ModbusServer] = None
-        self._udp_server: Optional[UDPServer] = None
-        self._http_server: Optional[HTTPServer] = None
-        self._mdns_server: Optional[MDNSServer] = None
+        self._modbus_server: ModbusServer | None = None
+        self._udp_server: UDPServer | None = None
+        self._http_server: HTTPServer | None = None
+        self._mdns_server: MDNSServer | None = None
 
         if self._settings.servers.modbus.enabled:
             self._modbus_server = ModbusServer(
