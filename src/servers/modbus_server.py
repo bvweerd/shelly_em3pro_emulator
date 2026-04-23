@@ -30,7 +30,8 @@ class CustomModbusDeviceContext(ModbusDeviceContext):
         """
         # Create minimal data blocks required by parent class
         # We override getValues/setValues so these won't be used
-        empty_block = ModbusSequentialDataBlock(0, [0])
+        # Address must be >= 1 (pymodbus internally uses address-1 for SimData)
+        empty_block = ModbusSequentialDataBlock(1, [0])
         super().__init__(
             di=empty_block,
             co=empty_block,

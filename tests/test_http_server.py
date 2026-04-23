@@ -389,7 +389,7 @@ class TestHTTPServerStartStop:
     """Tests for HTTP server start/stop."""
 
     @pytest.fixture
-    def http_server(self, shelly_device, sample_meter_data):
+    def http_server(self, socket_enabled, shelly_device, sample_meter_data):
         """Create an HTTPServer for testing."""
         mock_dm = MagicMock()
         mock_dm.get_data.return_value = sample_meter_data

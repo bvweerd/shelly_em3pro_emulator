@@ -8,6 +8,8 @@ import asyncio
 import json
 import threading
 import time
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from typing import Any
 
 import uvicorn
@@ -54,7 +56,6 @@ class HTTPServer:
         self.data_manager = data_manager
         self.host = host
         self.port = port
-        self.app_instance = FastAPI(title="Shelly Pro 3EM Emulator")
         self.server_thread: threading.Thread | None = None
         self.uvicorn_server = None
         # Map WebSocket -> client source ID for proper dst in notifications
@@ -64,9 +65,13 @@ class HTTPServer:
         self._push_task_stop_event = asyncio.Event()
         self._push_task: asyncio.Task | None = None
 
-        # New event for Uvicorn server shutdown
-        self._server_stop_event = asyncio.Event()
+        @asynccontextmanager
+        async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+            await self._start_push_task()
+            yield
+            await self._stop_push_task()
 
+        self.app_instance = FastAPI(title="Shelly Pro 3EM Emulator", lifespan=lifespan)
         self._setup_websocket()  # WebSocket must be registered before HTTP routes
         self._setup_routes()
 
@@ -364,8 +369,6 @@ class HTTPServer:
 
     def _setup_routes(self):
         """Setup HTTP routes for Gen2 API."""
-        self.app_instance.add_event_handler("startup", self._start_push_task)
-        self.app_instance.add_event_handler("shutdown", self._stop_push_task)
 
         # Gen2 /shelly endpoint - device identification
         @self.app_instance.get("/shelly")
@@ -590,20 +593,14 @@ class HTTPServer:
         def run_server_in_thread():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-
-            async def serve_with_shutdown():
-                await self.uvicorn_server.serve()
-                await self._server_stop_event.wait()
-                self.uvicorn_server.should_exit = True
-
             try:
-                loop.run_until_complete(serve_with_shutdown())
+                loop.run_until_complete(self.uvicorn_server.serve())
             finally:
                 loop.close()
-                self._server_stop_event.clear()  # Clear the event for next start
 
-        self._server_stop_event.clear()  # Ensure event is clear before starting
-        self.server_thread = threading.Thread(target=run_server_in_thread, daemon=True)
+        self.server_thread = threading.Thread(
+            target=run_server_in_thread, daemon=True, name="run_server_in_thread"
+        )
         self.server_thread.start()
         logger.info(f"HTTP server started on http://{self.host}:{self.port}")
 
@@ -611,7 +608,8 @@ class HTTPServer:
         """Stop the HTTP server."""
         if self.server_thread and self.server_thread.is_alive():
             logger.info("Stopping HTTP server")
-            self._server_stop_event.set()  # Signal the server thread to stop
+            if self.uvicorn_server:
+                self.uvicorn_server.should_exit = True
             self.server_thread.join(timeout=10)  # Wait for thread to finish
             if self.server_thread.is_alive():
                 logger.warning("HTTP server thread did not terminate gracefully.")
