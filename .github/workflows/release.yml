@@ -117,15 +117,26 @@ jobs:
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v6
         with:
+          commitMode: true
           configuration: |
             {
-              "categories": [
-                { "title": "## Features", "labels": ["feature", "enhancement"] },
-                { "title": "## Bug Fixes", "labels": ["bug", "fix"] },
-                { "title": "## Documentation", "labels": ["documentation"] },
-                { "title": "## Other", "labels": [] }
+              "label_extractor": [
+                { "pattern": "^(feat|feature|add)(\\(.+\\))?!?[:\\s]", "target": "feature" },
+                { "pattern": "^(fix|bug|bugfix|hotfix)(\\(.+\\))?!?[:\\s]", "target": "bug" },
+                { "pattern": "^(docs?|documentation)(\\(.+\\))?[:\\s]", "target": "documentation" },
+                { "pattern": "^(ci|github.?actions?)(\\(.+\\))?[:\\s]", "target": "ci" },
+                { "pattern": "^(chore|refactor|test|perf|style|build|bump)(\\(.+\\))?[:\\s]", "target": "chore" }
               ],
-              "template": "#{{CHANGELOG}}\n\n**Full Changelog**: #{{RELEASE_DIFF}}"
+              "categories": [
+                { "title": "## ✨ New features",   "labels": ["feature", "enhancement"] },
+                { "title": "## 🐛 Bug fixes",      "labels": ["bug", "fix"] },
+                { "title": "## 📚 Documentation",  "labels": ["documentation"] },
+                { "title": "## 🔧 Other",          "labels": ["chore"] },
+                { "title": "## 👷 CI",             "labels": ["ci"] },
+                { "title": "## 📦 Uncategorized",  "labels": [] }
+              ],
+              "ignore_labels": ["dependabot"],
+              "template": "#{{CHANGELOG}}\n\n**Full changelog**: #{{RELEASE_DIFF}}"
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -134,6 +145,10 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           body: |
+            ${{ steps.changelog.outputs.changelog }}
+
+            ---
+
             ## Docker Image (standalone)
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
@@ -141,9 +156,6 @@ jobs:
 
             ## Home Assistant Add-on
             Add `https://github.com/bvweerd/shelly_em3pro_emulator` as a custom repository.
-
-            ## Changes
-            ${{ steps.changelog.outputs.changelog }}
-          generate_release_notes: true
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
