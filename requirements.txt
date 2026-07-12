@@ -5,4 +5,4 @@ structlog>=26.1.0
 fastapi>=0.138.1
 uvicorn[standard]>=0.49.0
 websockets>=16.0
-zeroconf>=0.148.0
+zeroconf>=0.150.0
