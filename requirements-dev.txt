@@ -5,6 +5,6 @@ pytest-httpx>=0.36.2
 pytest-cov>=4.1.0
 pytest-socket>=0.8.0
 ruff>=0.15.20
-pre-commit>=4.6.0
+pre-commit>=4.6.1
 mypy>=2.3.0
 types-pyyaml>=6.0.12.20260518
