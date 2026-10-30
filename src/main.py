@@ -5,9 +5,9 @@ import signal
 import sys
 import time
 
-from .config import load_config, setup_logging, get_logger
+from .config import get_logger, load_config, setup_logging
 from .emulator import DataManager, ShellyDevice
-from .servers import ModbusServer, UDPServer, HTTPServer, MDNSServer
+from .servers import HTTPServer, MDNSServer, ModbusServer, UDPServer
 
 logger = get_logger(__name__)
 

@@ -6,7 +6,7 @@ import time
 import pytest
 
 from src.emulator import MeterData, PhaseData, RegisterMap
-from src.emulator.register_map import RegisterType, RegisterDefinition
+from src.emulator.register_map import RegisterDefinition, RegisterType
 
 from .conftest import registers_to_float, registers_to_uint32
 

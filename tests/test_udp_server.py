@@ -1,7 +1,6 @@
 """Tests for the UDP server module."""
 
 import json
-import socket
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -266,7 +265,7 @@ class TestUDPServerListenLoop:
         )
 
         mock_socket = MagicMock()
-        mock_socket.recvfrom.side_effect = socket.timeout()
+        mock_socket.recvfrom.side_effect = TimeoutError()
 
         server._running = True
 

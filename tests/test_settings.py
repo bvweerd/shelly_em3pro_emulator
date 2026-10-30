@@ -18,8 +18,8 @@ from src.config.settings import (
     ShellyConfig,
     TotalsConfig,
     UDPServerConfig,
-    load_config,
     _parse_config,
+    load_config,
 )
 
 

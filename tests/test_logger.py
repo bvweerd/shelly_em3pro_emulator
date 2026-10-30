@@ -3,8 +3,7 @@
 import logging
 from unittest.mock import patch
 
-
-from src.config.logger import setup_logging, get_logger
+from src.config.logger import get_logger, setup_logging
 
 
 class TestSetupLogging:

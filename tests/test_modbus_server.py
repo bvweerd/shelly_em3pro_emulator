@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from src.servers.modbus_server import ModbusServer, CustomModbusDeviceContext
 from src.emulator import RegisterMap
+from src.servers.modbus_server import CustomModbusDeviceContext, ModbusServer
 
 
 class TestCustomModbusDeviceContext:

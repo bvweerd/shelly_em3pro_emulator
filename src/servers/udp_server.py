@@ -83,8 +83,8 @@ class UDPServer:
         for sock in self._sockets:
             try:
                 sock.close()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Error closing UDP socket", error=str(e))
 
         # Wait for threads to finish
         for thread in self._threads:
