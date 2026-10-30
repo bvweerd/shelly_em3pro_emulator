@@ -5,8 +5,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.data_sources.homeassistant import EntityValue
-from src.emulator.data_manager import DataManager, MeterData, PhaseData
 from src.config import Settings
 from src.config.settings import (
     DSMRConfig,
@@ -14,6 +12,8 @@ from src.config.settings import (
     PhaseConfig,
     TotalsConfig,
 )
+from src.data_sources.homeassistant import EntityValue
+from src.emulator.data_manager import DataManager, MeterData, PhaseData
 
 
 def _ev(value, ts="2024-01-01T00:00:00Z"):

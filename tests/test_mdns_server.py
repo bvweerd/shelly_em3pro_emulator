@@ -2,7 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-
 from src.servers.mdns_server import MDNSServer
 
 

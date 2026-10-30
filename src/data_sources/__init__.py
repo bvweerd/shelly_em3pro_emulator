@@ -1,11 +1,11 @@
 """Data sources module."""
 
+from .dsmr_discovery import DiscoveredEntities, DSMRDiscovery, discover_dsmr_entities
 from .homeassistant import HomeAssistantClient
-from .dsmr_discovery import DSMRDiscovery, DiscoveredEntities, discover_dsmr_entities
 
 __all__ = [
-    "HomeAssistantClient",
     "DSMRDiscovery",
     "DiscoveredEntities",
+    "HomeAssistantClient",
     "discover_dsmr_entities",
 ]

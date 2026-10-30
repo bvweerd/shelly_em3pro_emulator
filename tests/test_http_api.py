@@ -7,13 +7,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.config import (
-    Settings,
-    ShellyConfig,
     HTTPServerConfig,
     MDNSServerConfig,
     ServersConfig,
+    Settings,
+    ShellyConfig,
 )
-from src.emulator import ShellyDevice, DataManager, MeterData, PhaseData
+from src.emulator import DataManager, MeterData, PhaseData, ShellyDevice
 from src.servers.http_server import HTTPServer
 
 

@@ -1,6 +1,7 @@
 import socket
 import threading
-from zeroconf import ServiceInfo, Zeroconf, IPVersion
+
+from zeroconf import IPVersion, ServiceInfo, Zeroconf
 
 from ..config import get_logger
 

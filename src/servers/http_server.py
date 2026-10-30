@@ -232,9 +232,8 @@ class HTTPServer:
                     comp["status"] = self._get_em_status(0)
                 elif comp["key"] == "emdata:0":
                     comp["status"] = self._get_emdata_status(0)
-            if "config" in include:
-                if comp["key"] == "em:0":
-                    comp["config"] = self._get_em_config(0)
+            if "config" in include and comp["key"] == "em:0":
+                comp["config"] = self._get_em_config(0)
 
         # Apply offset
         total = len(components)
@@ -348,8 +347,8 @@ class HTTPServer:
             except asyncio.CancelledError:
                 logger.info("WebSocket push task cancelled.")
                 break
-            except Exception as e:
-                logger.exception(f"WebSocket push task error: {e}")
+            except Exception:
+                logger.exception("WebSocket push task error")
                 # Continue loop - don't let a single error stop all future pushes
         logger.info("WebSocket push task stopped.")
 
@@ -502,8 +501,8 @@ class HTTPServer:
 
             except WebSocketDisconnect:
                 logger.info(f"WebSocket client disconnected from {websocket.client}")
-            except Exception as e:
-                logger.exception(f"WebSocket error: {e}")
+            except Exception:
+                logger.exception("WebSocket error")
             finally:
                 if websocket in self.websocket_clients:
                     del self.websocket_clients[websocket]

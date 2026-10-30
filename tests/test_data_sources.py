@@ -1,13 +1,14 @@
 """Tests for data sources and DSMR discovery."""
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.data_sources import HomeAssistantClient
 from src.data_sources.dsmr_discovery import (
-    DSMRDiscovery,
-    DiscoveredEntities,
     DSMR_PATTERNS,
+    DiscoveredEntities,
+    DSMRDiscovery,
 )
 
 
@@ -269,9 +270,9 @@ class TestDSMRDiscovery:
                 if re.match(pattern, test_entity, re.IGNORECASE):
                     matched = True
                     break
-            assert (
-                matched
-            ), f"Belgian Fluvius entity {test_entity} should match {pattern_name}"
+            assert matched, (
+                f"Belgian Fluvius entity {test_entity} should match {pattern_name}"
+            )
 
     @patch("httpx.Client.get")
     def test_discovery_three_phase(self, mock_get):

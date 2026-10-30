@@ -183,13 +183,13 @@ class ModbusTestClient:
             raise ValueError("Invalid response length")
 
         # Parse MBAP header
-        _, _, length, unit, fc = struct.unpack(">HHHBB", response[:8])
+        _, _, _length, _unit, fc = struct.unpack(">HHHBB", response[:8])
 
         if fc == function_code:
             # Success response
             byte_count = response[8]
             data = response[9 : 9 + byte_count]
-            return list(struct.unpack(f">{len(data)//2}H", data))
+            return list(struct.unpack(f">{len(data) // 2}H", data))
         elif fc == function_code + 0x80:
             # Error response
             error_code = response[8]

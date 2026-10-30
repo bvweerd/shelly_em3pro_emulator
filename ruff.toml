@@ -1,0 +1,5 @@
+[lint]
+# The servers and pollers run unattended for months: a catch-all at each loop or
+# request boundary keeps one bad request or HA hiccup from stopping the emulator.
+# Every such handler logs the error, so blind `except Exception` is intentional.
+extend-ignore = ["BLE001"]

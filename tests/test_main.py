@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.main import ShellyEmulator, main
 from src.config import Settings
 from src.config.settings import (
     DSMRConfig,
@@ -20,6 +19,7 @@ from src.config.settings import (
     ShellyConfig,
     UDPServerConfig,
 )
+from src.main import ShellyEmulator, main
 
 
 @pytest.fixture

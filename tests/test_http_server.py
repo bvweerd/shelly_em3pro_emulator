@@ -1,19 +1,19 @@
 """Tests for the HTTP server module."""
 
-import time
-from unittest.mock import MagicMock, AsyncMock, patch
 import socket
+import time
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
+from src.emulator import MeterData
 from src.servers.http_server import (
     HTTPServer,
+    JsonRpcError,
     JsonRpcRequest,
     JsonRpcResponse,
-    JsonRpcError,
 )
-from src.emulator import MeterData
 
 
 def get_free_port():
@@ -534,7 +534,7 @@ class TestHTTPServerWebSocket:
         async def failing_send():
             call_count[0] += 1
             if call_count[0] == 1:
-                raise Exception("Test error")
+                raise RuntimeError("Test error")
             http_server._push_task_stop_event.set()
 
         http_server._send_status_update = failing_send
