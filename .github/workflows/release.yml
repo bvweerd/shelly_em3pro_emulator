@@ -14,10 +14,10 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
           cache: "pip"
@@ -40,7 +40,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get version from tag
         id: version
@@ -58,13 +58,13 @@ jobs:
           grep "^version:" addon/config.yaml
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -72,7 +72,7 @@ jobs:
 
       - name: Extract metadata for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -82,7 +82,7 @@ jobs:
             type=raw,value=latest
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./docker/Dockerfile
@@ -98,7 +98,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push add-on Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./addon/Dockerfile
@@ -117,23 +117,38 @@ jobs:
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v6
         with:
+          commitMode: true
           configuration: |
             {
-              "categories": [
-                { "title": "## Features", "labels": ["feature", "enhancement"] },
-                { "title": "## Bug Fixes", "labels": ["bug", "fix"] },
-                { "title": "## Documentation", "labels": ["documentation"] },
-                { "title": "## Other", "labels": [] }
+              "label_extractor": [
+                { "pattern": "^(feat|feature|add)(\\(.+\\))?!?[:\\s]", "target": "feature" },
+                { "pattern": "^(fix|bug|bugfix|hotfix)(\\(.+\\))?!?[:\\s]", "target": "bug" },
+                { "pattern": "^(docs?|documentation)(\\(.+\\))?[:\\s]", "target": "documentation" },
+                { "pattern": "^(ci|github.?actions?)(\\(.+\\))?[:\\s]", "target": "ci" },
+                { "pattern": "^(chore|refactor|test|perf|style|build|bump)(\\(.+\\))?[:\\s]", "target": "chore" }
               ],
-              "template": "#{{CHANGELOG}}\n\n**Full Changelog**: #{{RELEASE_DIFF}}"
+              "categories": [
+                { "title": "## ✨ New features",   "labels": ["feature", "enhancement"] },
+                { "title": "## 🐛 Bug fixes",      "labels": ["bug", "fix"] },
+                { "title": "## 📚 Documentation",  "labels": ["documentation"] },
+                { "title": "## 🔧 Other",          "labels": ["chore"] },
+                { "title": "## 👷 CI",             "labels": ["ci"] },
+                { "title": "## 📦 Uncategorized",  "labels": [] }
+              ],
+              "ignore_labels": ["dependabot"],
+              "template": "#{{CHANGELOG}}\n\n**Full changelog**: #{{RELEASE_DIFF}}"
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body: |
+            ${{ steps.changelog.outputs.changelog }}
+
+            ---
+
             ## Docker Image (standalone)
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
@@ -141,9 +156,6 @@ jobs:
 
             ## Home Assistant Add-on
             Add `https://github.com/bvweerd/shelly_em3pro_emulator` as a custom repository.
-
-            ## Changes
-            ${{ steps.changelog.outputs.changelog }}
-          generate_release_notes: true
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

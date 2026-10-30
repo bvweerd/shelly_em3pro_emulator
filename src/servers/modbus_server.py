@@ -3,12 +3,12 @@
 import threading
 
 from pymodbus.datastore import (
-    ModbusServerContext,
     ModbusDeviceContext,
     ModbusSequentialDataBlock,
+    ModbusServerContext,
 )
 from pymodbus.pdu.device import ModbusDeviceIdentification
-from pymodbus.server import StartTcpServer, ServerStop
+from pymodbus.server import ServerStop, StartTcpServer
 
 from ..config import get_logger
 from ..emulator.data_manager import DataManager
@@ -30,7 +30,8 @@ class CustomModbusDeviceContext(ModbusDeviceContext):
         """
         # Create minimal data blocks required by parent class
         # We override getValues/setValues so these won't be used
-        empty_block = ModbusSequentialDataBlock(0, [0])
+        # Address must be >= 1 (pymodbus internally uses address-1 for SimData)
+        empty_block = ModbusSequentialDataBlock(1, [0])
         super().__init__(
             di=empty_block,
             co=empty_block,

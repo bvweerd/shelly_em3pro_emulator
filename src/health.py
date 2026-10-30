@@ -13,7 +13,7 @@ def check_modbus(
             s.settimeout(timeout)
             s.connect((host, port))
             return True
-    except (socket.timeout, ConnectionRefusedError, OSError):
+    except (TimeoutError, ConnectionRefusedError, OSError):
         return False
 
 
@@ -24,7 +24,7 @@ def check_http(host: str = "127.0.0.1", port: int = 80, timeout: float = 5.0) ->
             s.settimeout(timeout)
             s.connect((host, port))
             return True
-    except (socket.timeout, ConnectionRefusedError, OSError):
+    except (TimeoutError, ConnectionRefusedError, OSError):
         return False
 
 

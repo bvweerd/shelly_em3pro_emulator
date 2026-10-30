@@ -221,7 +221,7 @@ class TestUDPProtocol:
 
         # Should have sent a response
         mock_sock.sendto.assert_called_once()
-        sent_data, addr = mock_sock.sendto.call_args[0]
+        sent_data, _addr = mock_sock.sendto.call_args[0]
         response = json.loads(sent_data.decode())
         assert response["id"] == 1
         assert "result" in response

@@ -7,10 +7,10 @@ https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/EMData/
 
 import struct
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
-from collections.abc import Callable
 
 from .data_manager import MeterData
 from .shelly_device import ShellyDevice

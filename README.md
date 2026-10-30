@@ -107,7 +107,7 @@ docker compose up -d --build
 ```bash
 docker run -d --network host \
   -v /path/to/your/config.yaml:/app/config/config.yaml:ro \
-  ghcr.io/bvweerd/shelly-emulator:latest
+  ghcr.io/bvweerd/shelly_em3pro_emulator:latest
 ```
 
 #### 4. Start without Docker

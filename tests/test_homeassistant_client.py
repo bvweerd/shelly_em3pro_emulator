@@ -6,9 +6,9 @@ import httpx
 import pytest
 
 from src.data_sources.homeassistant import (
-    HomeAssistantClient,
-    EntityValue,
     UNIT_CONVERSIONS,
+    EntityValue,
+    HomeAssistantClient,
 )
 
 

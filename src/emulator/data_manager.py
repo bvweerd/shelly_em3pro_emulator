@@ -5,7 +5,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from ..config import get_logger, Settings, TotalsConfig, PhaseConfig
+from ..config import PhaseConfig, Settings, TotalsConfig, get_logger
 from ..data_sources import HomeAssistantClient, discover_dsmr_entities
 
 logger = get_logger(__name__)
