@@ -36,7 +36,7 @@ services:
 #
 # services:
 #   shelly-emulator:
-#     image: ghcr.io/bvweerd/shelly-emulator:latest
+#     image: ghcr.io/bvweerd/shelly_em3pro_emulator:latest
 #     container_name: shelly-emulator
 #     ports:
 #       - "502:502"         # Modbus TCP
