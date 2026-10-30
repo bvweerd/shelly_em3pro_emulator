@@ -12,7 +12,7 @@
 
 services:
   shelly-emulator:
-    image: ghcr.io/bvweerd/shelly-emulator:latest
+    image: ghcr.io/bvweerd/shelly_em3pro_emulator:latest
     container_name: shelly-emulator
     # Host network mode is required for:
     # - UDP broadcast reception from Marstek devices
